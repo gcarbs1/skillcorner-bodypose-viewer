@@ -1,9 +1,9 @@
 {
   "name": "SkillCorner Body Pose Viewer",
-  "generated_at": "2026-10-08T10:13:50.307128+00:00",
+  "generated_at": "2026-10-08T10:38:57.094971+00:00",
   "source": "SkillCorner Open Data · Body Pose + Game Intelligence",
   "pose_fps": 25,
-  "playback_fps": 12.5,
+  "playback_fps": 25.0,
   "joints": [
     "nose",
     "neck",
@@ -550,9 +550,9 @@
       "y": -8.53,
       "attacking_side": "right_to_left",
       "pose_frame": 8915,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-120",
@@ -570,9 +570,9 @@
       "y": -6.08,
       "attacking_side": "left_to_right",
       "pose_frame": 14148,
-      "frames": 77,
+      "frames": 154,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.4
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-227",
@@ -590,9 +590,9 @@
       "y": 14.69,
       "attacking_side": "left_to_right",
       "pose_frame": 27930,
-      "frames": 79,
+      "frames": 158,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.6
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-270",
@@ -610,9 +610,9 @@
       "y": 11.8,
       "attacking_side": "left_to_right",
       "pose_frame": 34240,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-290",
@@ -630,9 +630,9 @@
       "y": -11.38,
       "attacking_side": "right_to_left",
       "pose_frame": 36955,
-      "frames": 76,
+      "frames": 153,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.6
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-305",
@@ -650,9 +650,9 @@
       "y": -5.96,
       "attacking_side": "left_to_right",
       "pose_frame": 39572,
-      "frames": 78,
+      "frames": 156,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-308",
@@ -670,9 +670,9 @@
       "y": 5.32,
       "attacking_side": "left_to_right",
       "pose_frame": 39818,
-      "frames": 72,
+      "frames": 144,
       "pose_coverage": 1.0,
-      "mean_visible_players": 10.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-317",
@@ -690,9 +690,9 @@
       "y": -9.9,
       "attacking_side": "right_to_left",
       "pose_frame": 43802,
-      "frames": 122,
+      "frames": 243,
       "pose_coverage": 1.0,
-      "mean_visible_players": 10.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-332",
@@ -710,9 +710,9 @@
       "y": -18.24,
       "attacking_side": "right_to_left",
       "pose_frame": 44928,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-352",
@@ -730,9 +730,9 @@
       "y": 8.99,
       "attacking_side": "left_to_right",
       "pose_frame": 52470,
-      "frames": 77,
+      "frames": 154,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.2
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-510",
@@ -750,9 +750,9 @@
       "y": 16.47,
       "attacking_side": "left_to_right",
       "pose_frame": 70515,
-      "frames": 138,
+      "frames": 276,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-535",
@@ -770,9 +770,9 @@
       "y": -1.57,
       "attacking_side": "right_to_left",
       "pose_frame": 75312,
-      "frames": 74,
+      "frames": 148,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-607",
@@ -790,9 +790,9 @@
       "y": 6.45,
       "attacking_side": "left_to_right",
       "pose_frame": 82662,
-      "frames": 72,
+      "frames": 143,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.2
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-628",
@@ -810,9 +810,9 @@
       "y": -9.04,
       "attacking_side": "right_to_left",
       "pose_frame": 86282,
-      "frames": 77,
+      "frames": 153,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.6
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-636",
@@ -830,9 +830,9 @@
       "y": -2.32,
       "attacking_side": "left_to_right",
       "pose_frame": 87558,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 11.5
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-688",
@@ -850,9 +850,9 @@
       "y": 0.21,
       "attacking_side": "left_to_right",
       "pose_frame": 93820,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-699",
@@ -870,9 +870,9 @@
       "y": -2.25,
       "attacking_side": "left_to_right",
       "pose_frame": 95968,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.8
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-701",
@@ -890,9 +890,9 @@
       "y": 4.31,
       "attacking_side": "right_to_left",
       "pose_frame": 97362,
-      "frames": 133,
+      "frames": 266,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.4
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-746",
@@ -910,9 +910,9 @@
       "y": -21.49,
       "attacking_side": "left_to_right",
       "pose_frame": 100952,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-790",
@@ -930,9 +930,9 @@
       "y": 6.87,
       "attacking_side": "right_to_left",
       "pose_frame": 110758,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-804",
@@ -950,9 +950,9 @@
       "y": -10.56,
       "attacking_side": "left_to_right",
       "pose_frame": 116188,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 10.4
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-805",
@@ -970,9 +970,9 @@
       "y": -16.3,
       "attacking_side": "left_to_right",
       "pose_frame": 116222,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 11.8
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-806",
@@ -990,9 +990,9 @@
       "y": -10.24,
       "attacking_side": "left_to_right",
       "pose_frame": 116242,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-871",
@@ -1010,9 +1010,9 @@
       "y": 19.71,
       "attacking_side": "left_to_right",
       "pose_frame": 124768,
-      "frames": 151,
+      "frames": 302,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-888",
@@ -1030,9 +1030,9 @@
       "y": -1.93,
       "attacking_side": "left_to_right",
       "pose_frame": 126558,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.5
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-961",
@@ -1050,9 +1050,9 @@
       "y": 10.36,
       "attacking_side": "left_to_right",
       "pose_frame": 139955,
-      "frames": 106,
+      "frames": 213,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-970",
@@ -1070,9 +1070,9 @@
       "y": -13.06,
       "attacking_side": "left_to_right",
       "pose_frame": 141365,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 19.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-973",
@@ -1090,9 +1090,9 @@
       "y": 6.05,
       "attacking_side": "left_to_right",
       "pose_frame": 141968,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 19.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-979",
@@ -1110,9 +1110,9 @@
       "y": 16.71,
       "attacking_side": "right_to_left",
       "pose_frame": 142755,
-      "frames": 96,
+      "frames": 193,
       "pose_coverage": 1.0,
-      "mean_visible_players": 12.6
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1925299_8-1009",
@@ -1130,9 +1130,9 @@
       "y": -7.23,
       "attacking_side": "left_to_right",
       "pose_frame": 146720,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-257",
@@ -1150,9 +1150,9 @@
       "y": -6.77,
       "attacking_side": "right_to_left",
       "pose_frame": 25150,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-316",
@@ -1170,9 +1170,9 @@
       "y": -11.52,
       "attacking_side": "left_to_right",
       "pose_frame": 33428,
-      "frames": 88,
+      "frames": 176,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-317",
@@ -1190,9 +1190,9 @@
       "y": -10.95,
       "attacking_side": "left_to_right",
       "pose_frame": 33485,
-      "frames": 81,
+      "frames": 163,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.5
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-338",
@@ -1210,9 +1210,9 @@
       "y": -11.73,
       "attacking_side": "right_to_left",
       "pose_frame": 36365,
-      "frames": 91,
+      "frames": 183,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.7
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-340",
@@ -1230,9 +1230,9 @@
       "y": -5.78,
       "attacking_side": "left_to_right",
       "pose_frame": 37305,
-      "frames": 81,
+      "frames": 163,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.2
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-357",
@@ -1250,9 +1250,9 @@
       "y": -10.66,
       "attacking_side": "left_to_right",
       "pose_frame": 39865,
-      "frames": 141,
+      "frames": 283,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-358",
@@ -1270,9 +1270,9 @@
       "y": 7.22,
       "attacking_side": "left_to_right",
       "pose_frame": 40730,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 0.952,
-      "mean_visible_players": 18.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-367",
@@ -1290,9 +1290,9 @@
       "y": 10.55,
       "attacking_side": "right_to_left",
       "pose_frame": 42162,
-      "frames": 128,
+      "frames": 256,
       "pose_coverage": 1.0,
-      "mean_visible_players": 12.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-390",
@@ -1310,9 +1310,9 @@
       "y": 20.17,
       "attacking_side": "left_to_right",
       "pose_frame": 47392,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.4
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-438",
@@ -1330,9 +1330,9 @@
       "y": -7.65,
       "attacking_side": "right_to_left",
       "pose_frame": 52448,
-      "frames": 78,
+      "frames": 156,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-446",
@@ -1350,9 +1350,9 @@
       "y": -7.73,
       "attacking_side": "left_to_right",
       "pose_frame": 53202,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-461",
@@ -1370,9 +1370,9 @@
       "y": -14.72,
       "attacking_side": "right_to_left",
       "pose_frame": 56242,
-      "frames": 75,
+      "frames": 150,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-463",
@@ -1390,9 +1390,9 @@
       "y": 5.73,
       "attacking_side": "right_to_left",
       "pose_frame": 56410,
-      "frames": 79,
+      "frames": 158,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.3
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-511",
@@ -1410,9 +1410,9 @@
       "y": -2.81,
       "attacking_side": "left_to_right",
       "pose_frame": 63370,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-542",
@@ -1430,9 +1430,9 @@
       "y": 7.02,
       "attacking_side": "right_to_left",
       "pose_frame": 67888,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.2
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-561",
@@ -1450,9 +1450,9 @@
       "y": -4.58,
       "attacking_side": "right_to_left",
       "pose_frame": 70498,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.7
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-574",
@@ -1470,9 +1470,9 @@
       "y": 7.64,
       "attacking_side": "right_to_left",
       "pose_frame": 73700,
-      "frames": 79,
+      "frames": 158,
       "pose_coverage": 1.0,
-      "mean_visible_players": 17.7
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-578",
@@ -1490,9 +1490,9 @@
       "y": -14.86,
       "attacking_side": "left_to_right",
       "pose_frame": 75870,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 12.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-594",
@@ -1510,9 +1510,9 @@
       "y": -7.93,
       "attacking_side": "left_to_right",
       "pose_frame": 79758,
-      "frames": 101,
+      "frames": 202,
       "pose_coverage": 0.584,
-      "mean_visible_players": 8.5
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-617",
@@ -1530,9 +1530,9 @@
       "y": -1.44,
       "attacking_side": "right_to_left",
       "pose_frame": 83638,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 18.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-766",
@@ -1550,9 +1550,9 @@
       "y": -14.41,
       "attacking_side": "right_to_left",
       "pose_frame": 103512,
-      "frames": 110,
+      "frames": 220,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-829",
@@ -1570,9 +1570,9 @@
       "y": -4.83,
       "attacking_side": "left_to_right",
       "pose_frame": 113148,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.6
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-835",
@@ -1590,9 +1590,9 @@
       "y": 1.11,
       "attacking_side": "right_to_left",
       "pose_frame": 114438,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.0
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-877",
@@ -1610,9 +1610,9 @@
       "y": 12.26,
       "attacking_side": "right_to_left",
       "pose_frame": 121808,
-      "frames": 76,
+      "frames": 152,
       "pose_coverage": 1.0,
-      "mean_visible_players": 14.1
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-914",
@@ -1630,9 +1630,9 @@
       "y": 10.2,
       "attacking_side": "right_to_left",
       "pose_frame": 126905,
-      "frames": 83,
+      "frames": 166,
       "pose_coverage": 1.0,
-      "mean_visible_players": 15.7
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-965",
@@ -1650,9 +1650,9 @@
       "y": -10.02,
       "attacking_side": "left_to_right",
       "pose_frame": 135738,
-      "frames": 92,
+      "frames": 184,
       "pose_coverage": 1.0,
-      "mean_visible_players": 13.7
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-969",
@@ -1670,9 +1670,9 @@
       "y": -14.1,
       "attacking_side": "left_to_right",
       "pose_frame": 137545,
-      "frames": 80,
+      "frames": 161,
       "pose_coverage": 1.0,
-      "mean_visible_players": 18.8
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-980",
@@ -1690,9 +1690,9 @@
       "y": -1.46,
       "attacking_side": "left_to_right",
       "pose_frame": 139760,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 11.9
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-993",
@@ -1710,9 +1710,9 @@
       "y": 4.88,
       "attacking_side": "left_to_right",
       "pose_frame": 141412,
-      "frames": 63,
+      "frames": 126,
       "pose_coverage": 1.0,
-      "mean_visible_players": 16.2
+      "mean_tracked_players": 22.0
     },
     {
       "id": "1996435_8-996",
@@ -1730,9 +1730,9 @@
       "y": -12.22,
       "attacking_side": "right_to_left",
       "pose_frame": 142372,
-      "frames": 104,
+      "frames": 208,
       "pose_coverage": 1.0,
-      "mean_visible_players": 9.2
+      "mean_tracked_players": 22.0
     }
   ]
 }
