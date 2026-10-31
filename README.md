@@ -1,24 +1,46 @@
 # SkillCorner Body Pose Viewer
 
-Interactive 3D viewer for SkillCorner Open Data, combining Body Pose and Game
-Intelligence data to replay shots with player poses, ball tracking, and head
-orientation.
+Interactive 3D viewer for SkillCorner Open Data. It combines Body Pose and Game
+Intelligence data to replay shots with player poses, ball tracking, head
+orientation, and a lightweight stadium environment.
 
-## Structure
+## Quick start
 
-- `index.html`: static website ready for GitHub Pages.
-- `notebooks/`: data collection and replay generation.
-- `data/source/`: downloaded source files (ignored by Git).
-- `data/clips/`: compact replay files consumed by the viewer.
-- `data/manifest.json`: match, player, and clip metadata consumed by the viewer.
+The project uses Python 3.12.x for the data notebook and a static HTTP server.
 
-## Pipeline
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m http.server 8000
+```
 
-Run the notebook:
+Open <http://127.0.0.1:8000>.
 
-1. `00-data_collection.ipynb`
+To work on the data pipeline, start JupyterLab from the same environment:
 
-The notebook downloads the official Body Pose and Game Intelligence files,
-selects player possessions ending in shots, and updates `data/clips/` and
-`data/manifest.json`. Serve the repository over HTTP to open `index.html` with
-the generated data.
+```bash
+jupyter lab
+```
+
+## Repository layout
+
+```text
+assets/css/    Interface styles
+assets/js/     Reusable Three.js scene modules
+data/clips/    Compact replay files consumed by the viewer
+data/source/   Downloaded source files (ignored by Git)
+docs/          Visual and technical notes
+notebooks/     Data collection and replay generation
+index.html     Static GitHub Pages entry point
+```
+
+## Data pipeline
+
+Run `notebooks/00-data_collection.ipynb`. It downloads the official Body Pose
+and Game Intelligence files, selects player possessions ending in shots, and
+updates `data/clips/` and `data/manifest.json`.
+
+The notebook currently uses only the Python standard library; JupyterLab and
+IPykernel are development tools pinned in `requirements.txt` so the environment
+is reproducible.

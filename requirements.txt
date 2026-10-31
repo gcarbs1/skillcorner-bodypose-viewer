@@ -1,0 +1,3 @@
+# Notebook and data-pipeline tooling. The viewer itself is a static web app.
+ipykernel==7.4.0
+jupyterlab==4.6.5
