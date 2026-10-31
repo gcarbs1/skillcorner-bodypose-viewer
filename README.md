@@ -2,7 +2,7 @@
 
 Interactive 3D viewer for SkillCorner Open Data. It combines Body Pose and Game
 Intelligence data to replay shots with player poses, ball tracking, head
-orientation, and a lightweight stadium environment.
+orientation, and a continuous two-tier arena environment with integrated roof lighting.
 
 ## Quick start
 

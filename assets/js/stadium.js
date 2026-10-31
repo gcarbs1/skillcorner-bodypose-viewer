@@ -1,15 +1,42 @@
 import * as THREE from 'three';
 
 const COLORS = {
-  concrete: 0xb7bbb5,
-  concreteDark: 0x929891,
-  concourse: 0xc9ccc6,
-  graphite: 0x303633,
+  concrete: 0xaeb4b0,
+  concreteLight: 0xc8ccc7,
+  concreteDark: 0x8e9691,
+  graphite: 0x242a27,
+  roof: 0x5b635f,
+  roofUnderside: 0x343b37,
   ground: 0xc7cdc5,
-  screen: 0x121614,
-  seats: [0x3559e8, 0xe75438],
-  ads: [0x121412],
+  blue: 0x2858e6,
+  red: 0xdf493c,
+  black: 0x111412,
+  advertising: 0xf7faf5,
+  lamp: 0xfff8df,
 };
+
+const ARENA = {
+  innerWidth: 132,
+  innerDepth: 94,
+  innerRadius: 18,
+  lower: { rows: 14, tread: 1.6, rise: 0.52, baseY: 0 },
+  concourse: { depth: 5, height: 0.85 },
+  upper: { rows: 10, tread: 1.65, rise: 0.76 },
+  roof: {
+    outerWidth: 228,
+    outerDepth: 190,
+    outerRadius: 66,
+    innerWidth: 164,
+    innerDepth: 122,
+    innerRadius: 30,
+    innerUndersideY: 21,
+    outerUndersideY: 23,
+    thickness: 0.55,
+  },
+};
+
+const UP = new THREE.Vector3(0, 1, 0);
+const FORWARD = new THREE.Vector3(0, 0, 1);
 
 function standard(color, options = {}) {
   return new THREE.MeshStandardMaterial({
@@ -21,327 +48,724 @@ function standard(color, options = {}) {
   });
 }
 
-function box(group, geometry, material, position, rotationY = 0) {
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(...position);
-  mesh.rotation.y = rotationY;
-  mesh.receiveShadow = true;
+function roundedRectanglePoints(width, depth, radius, cornerSegments = 14) {
+  const halfWidth = width / 2;
+  const halfDepth = depth / 2;
+  const safeRadius = Math.min(radius, halfWidth, halfDepth);
+  const points = [new THREE.Vector2(-halfWidth + safeRadius, -halfDepth)];
+  const corners = [
+    [halfWidth - safeRadius, -halfDepth + safeRadius, -Math.PI / 2, 0],
+    [halfWidth - safeRadius, halfDepth - safeRadius, 0, Math.PI / 2],
+    [-halfWidth + safeRadius, halfDepth - safeRadius, Math.PI / 2, Math.PI],
+    [-halfWidth + safeRadius, -halfDepth + safeRadius, Math.PI, Math.PI * 1.5],
+  ];
+
+  points.push(new THREE.Vector2(halfWidth - safeRadius, -halfDepth));
+  for (const [centerX, centerZ, start, end] of corners) {
+    for (let segment = 1; segment <= cornerSegments; segment += 1) {
+      const angle = THREE.MathUtils.lerp(start, end, segment / cornerSegments);
+      points.push(new THREE.Vector2(
+        centerX + Math.cos(angle) * safeRadius,
+        centerZ + Math.sin(angle) * safeRadius,
+      ));
+    }
+    if (end === 0) points.push(new THREE.Vector2(halfWidth, halfDepth - safeRadius));
+    if (end === Math.PI / 2) points.push(new THREE.Vector2(-halfWidth + safeRadius, halfDepth));
+    if (end === Math.PI) points.push(new THREE.Vector2(-halfWidth, -halfDepth + safeRadius));
+  }
+  return points;
+}
+
+function orientPoints(points, clockwise) {
+  const oriented = [...points];
+  if (THREE.ShapeUtils.isClockWise(oriented) !== clockwise) oriented.reverse();
+  return oriented;
+}
+
+function roundedRingGeometry(outer, inner, height) {
+  const outerPoints = orientPoints(
+    roundedRectanglePoints(outer.width, outer.depth, outer.radius),
+    true,
+  );
+  const innerPoints = orientPoints(
+    roundedRectanglePoints(inner.width, inner.depth, inner.radius),
+    false,
+  );
+  const shape = new THREE.Shape();
+  shape.setFromPoints(outerPoints);
+  shape.closePath();
+  const hole = new THREE.Path();
+  hole.setFromPoints(innerPoints);
+  hole.closePath();
+  shape.holes.push(hole);
+
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: height,
+    bevelEnabled: false,
+    curveSegments: 1,
+  });
+  geometry.rotateX(-Math.PI / 2);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function addRing(group, outer, inner, height, y, materials, options = {}) {
+  const mesh = new THREE.Mesh(roundedRingGeometry(outer, inner, height), materials);
+  mesh.position.y = y;
+  mesh.receiveShadow = options.receiveShadow ?? true;
+  mesh.castShadow = options.castShadow ?? false;
   group.add(mesh);
   return mesh;
 }
 
-function addLongStand(group, materials, side) {
-  const direction = Math.sign(side);
-  const lowerRow = new THREE.BoxGeometry(118, 0.68, 2.35);
-  const upperRow = new THREE.BoxGeometry(108, 0.72, 2.5);
-
-  for (let row = 0; row < 9; row += 1) {
-    box(
-      group,
-      lowerRow,
-      row % 2 ? materials.concrete : materials.concreteDark,
-      [0, 0.26 + row * 0.72, direction * (43.2 + row * 2.12)],
-    );
-  }
-
-  box(group, new THREE.BoxGeometry(122, 0.65, 5.2), materials.concourse, [0, 6.75, direction * 63.2]);
-  box(group, new THREE.BoxGeometry(122, 1.15, 0.45), materials.graphite, [0, 6.65, direction * 60.7]);
-
-  for (let row = 0; row < 6; row += 1) {
-    box(
-      group,
-      upperRow,
-      row % 2 ? materials.concreteDark : materials.concrete,
-      [0, 7.15 + row * 0.82, direction * (65.8 + row * 2.18)],
-    );
-  }
-
-  const canopy = box(
-    group,
-    new THREE.BoxGeometry(116, 0.45, 10),
-    materials.roof,
-    [0, 14.35, direction * 68.5],
-  );
-  canopy.rotation.x = direction * -0.08;
-
-  for (const x of [-50, -25, 0, 25, 50]) {
-    const column = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, 13.6, 10), materials.graphite);
-    column.position.set(x, 7.2, direction * 73);
-    column.castShadow = true;
-    group.add(column);
-  }
-}
-
-function addEndStand(group, materials, side) {
-  const direction = Math.sign(side);
-  const rowGeometry = new THREE.BoxGeometry(2.35, 0.68, 82);
-
-  for (let row = 0; row < 9; row += 1) {
-    box(
-      group,
-      rowGeometry,
-      row % 2 ? materials.concreteDark : materials.concrete,
-      [direction * (62.7 + row * 2.12), 0.26 + row * 0.72, 0],
-    );
-  }
-
-  box(group, new THREE.BoxGeometry(5.2, 0.65, 86), materials.concourse, [direction * 82.7, 6.75, 0]);
-  box(group, new THREE.BoxGeometry(0.45, 1.15, 86), materials.graphite, [direction * 80.1, 6.65, 0]);
-}
-
-function addCornerDecks(group, materials) {
-  const deck = new THREE.BoxGeometry(18, 0.65, 5.4);
-  const retaining = new THREE.BoxGeometry(17, 3.8, 0.6);
-
-  for (const x of [-1, 1]) {
-    for (const z of [-1, 1]) {
-      const angle = x * z > 0 ? Math.PI / 4 : -Math.PI / 4;
-      box(group, deck, materials.concourse, [x * 66.5, 5.45, z * 48.8], angle);
-      box(group, retaining, materials.concreteDark, [x * 64.4, 2.5, z * 47.1], angle);
-      box(group, retaining, materials.concrete, [x * 68.7, 4.15, z * 50.8], angle);
-      box(group, new THREE.BoxGeometry(7.5, 0.55, 4), materials.graphite, [x * 61.2, 0.32, z * 43], angle);
-    }
-  }
-}
-
-function addSeats(group, materials) {
+function slopedRoofGeometry(outer, inner, innerY, outerY, thickness) {
+  const outerLoop = roundedRectanglePoints(outer.width, outer.depth, outer.radius, 24);
+  const innerLoop = roundedRectanglePoints(inner.width, inner.depth, inner.radius, 24);
   const positions = [];
-  const seatGeometry = new THREE.BoxGeometry(0.9, 0.18, 0.7);
-  const backGeometry = new THREE.BoxGeometry(0.9, 0.62, 0.16);
-  const seatMaterial = standard(0xffffff, { roughness: 0.78 });
+  const groups = [];
+  const vertex = (point, y) => [point.x, y, point.y];
+  const triangle = (a, b, c) => positions.push(...a, ...b, ...c);
+  const region = (materialIndex, draw) => {
+    const start = positions.length / 3;
+    draw();
+    groups.push({ start, count: positions.length / 3 - start, materialIndex });
+  };
 
-  for (const side of [-1, 1]) {
-    for (let row = 0; row < 9; row += 1) {
-      for (let x = -54; x <= 54; x += 2.25) {
-        if (Math.abs(x) < 3.1 || Math.abs(Math.abs(x) - 27) < 2) continue;
-        positions.push({
-          position: [x, 0.76 + row * 0.72, side * (42.6 + row * 2.12)],
-          back: [x, 1.08 + row * 0.72, side * (42.92 + row * 2.12)],
-          rotation: side > 0 ? Math.PI : 0,
-          color: COLORS.seats[side < 0 ? 0 : 1],
-        });
-      }
+  region(0, () => {
+    for (let index = 0; index < outerLoop.length; index += 1) {
+      const next = (index + 1) % outerLoop.length;
+      const innerA = vertex(innerLoop[index], innerY + thickness);
+      const innerB = vertex(innerLoop[next], innerY + thickness);
+      const outerA = vertex(outerLoop[index], outerY + thickness);
+      const outerB = vertex(outerLoop[next], outerY + thickness);
+      triangle(innerA, innerB, outerB);
+      triangle(innerA, outerB, outerA);
     }
-  }
-
-  for (const side of [-1, 1]) {
-    for (let row = 0; row < 9; row += 1) {
-      for (let z = -36; z <= 36; z += 2.25) {
-        if (Math.abs(z) < 3.1 || Math.abs(Math.abs(z) - 21) < 2) continue;
-        positions.push({
-          position: [side * (62.1 + row * 2.12), 0.76 + row * 0.72, z],
-          back: [side * (62.42 + row * 2.12), 1.08 + row * 0.72, z],
-          rotation: side > 0 ? -Math.PI / 2 : Math.PI / 2,
-          color: COLORS.seats[side < 0 ? 0 : 1],
-        });
-      }
-    }
-  }
-
-  const seats = new THREE.InstancedMesh(seatGeometry, seatMaterial, positions.length);
-  const backs = new THREE.InstancedMesh(backGeometry, seatMaterial, positions.length);
-  const matrix = new THREE.Matrix4();
-  const rotation = new THREE.Quaternion();
-  const scale = new THREE.Vector3(1, 1, 1);
-  positions.forEach((seat, index) => {
-    rotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), seat.rotation);
-    matrix.compose(new THREE.Vector3(...seat.position), rotation, scale);
-    seats.setMatrixAt(index, matrix);
-    seats.setColorAt(index, new THREE.Color(seat.color));
-    matrix.compose(new THREE.Vector3(...seat.back), rotation, scale);
-    backs.setMatrixAt(index, matrix);
-    backs.setColorAt(index, new THREE.Color(seat.color));
   });
-  seats.instanceMatrix.needsUpdate = true;
-  backs.instanceMatrix.needsUpdate = true;
-  if (seats.instanceColor) seats.instanceColor.needsUpdate = true;
-  if (backs.instanceColor) backs.instanceColor.needsUpdate = true;
-  group.add(seats, backs);
+  region(1, () => {
+    for (let index = 0; index < outerLoop.length; index += 1) {
+      const next = (index + 1) % outerLoop.length;
+      const innerA = vertex(innerLoop[index], innerY);
+      const innerB = vertex(innerLoop[next], innerY);
+      const outerA = vertex(outerLoop[index], outerY);
+      const outerB = vertex(outerLoop[next], outerY);
+      triangle(innerA, outerA, outerB);
+      triangle(innerA, outerB, innerB);
+    }
+  });
+  region(2, () => {
+    for (let index = 0; index < outerLoop.length; index += 1) {
+      const next = (index + 1) % outerLoop.length;
+      const innerBottomA = vertex(innerLoop[index], innerY);
+      const innerBottomB = vertex(innerLoop[next], innerY);
+      const innerTopA = vertex(innerLoop[index], innerY + thickness);
+      const innerTopB = vertex(innerLoop[next], innerY + thickness);
+      triangle(innerBottomA, innerBottomB, innerTopB);
+      triangle(innerBottomA, innerTopB, innerTopA);
+
+      const outerBottomA = vertex(outerLoop[index], outerY);
+      const outerBottomB = vertex(outerLoop[next], outerY);
+      const outerTopA = vertex(outerLoop[index], outerY + thickness);
+      const outerTopB = vertex(outerLoop[next], outerY + thickness);
+      triangle(outerBottomA, outerTopB, outerBottomB);
+      triangle(outerBottomA, outerTopA, outerTopB);
+    }
+  });
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  for (const group of groups) geometry.addGroup(group.start, group.count, group.materialIndex);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
 }
 
-function addRailings(group, materials) {
-  const points = [];
-  const longZ = 60.45;
-  const endX = 79.85;
-  for (const side of [-1, 1]) {
-    for (const height of [7.25, 7.85]) {
-      points.push(new THREE.Vector3(-60, height, side * longZ), new THREE.Vector3(60, height, side * longZ));
-      points.push(new THREE.Vector3(side * endX, height, -42), new THREE.Vector3(side * endX, height, 42));
-    }
-    for (let x = -60; x <= 60; x += 6) {
-      points.push(new THREE.Vector3(x, 6.72, side * longZ), new THREE.Vector3(x, 7.9, side * longZ));
-    }
-    for (let z = -42; z <= 42; z += 6) {
-      points.push(new THREE.Vector3(side * endX, 6.72, z), new THREE.Vector3(side * endX, 7.9, z));
-    }
-  }
-  const rails = new THREE.LineSegments(
-    new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ color: materials.graphite.color, transparent: true, opacity: 0.72 }),
+function addSlopedRoof(group, materials) {
+  const outer = {
+    width: ARENA.roof.outerWidth,
+    depth: ARENA.roof.outerDepth,
+    radius: ARENA.roof.outerRadius,
+  };
+  const inner = {
+    width: ARENA.roof.innerWidth,
+    depth: ARENA.roof.innerDepth,
+    radius: ARENA.roof.innerRadius,
+  };
+  const roof = new THREE.Mesh(
+    slopedRoofGeometry(
+      outer,
+      inner,
+      ARENA.roof.innerUndersideY,
+      ARENA.roof.outerUndersideY,
+      ARENA.roof.thickness,
+    ),
+    [materials.roof, materials.roofUnderside, materials.graphite],
   );
-  group.add(rails);
+  roof.receiveShadow = true;
+  group.add(roof);
 }
 
-function addPitchFurniture(group, materials) {
-  const adGeometry = new THREE.BoxGeometry(8.2, 0.9, 0.28);
-  const endAdGeometry = new THREE.BoxGeometry(0.28, 0.9, 7.4);
-
-  for (const side of [-1, 1]) {
-    for (let index = -6; index <= 6; index += 1) {
-      if (index === 0) continue;
-      const material = materials.ads[(index + 8) % materials.ads.length];
-      box(group, adGeometry, material, [index * 8.55, 0.48, side * 36.3]);
-    }
-    for (let index = -4; index <= 4; index += 1) {
-      if (index === 0) continue;
-      const material = materials.ads[(index + 6) % materials.ads.length];
-      box(group, endAdGeometry, material, [side * 55.8, 0.48, index * 7.75]);
-    }
+function sampleClosedPolyline(points, spacing) {
+  const lengths = [];
+  let perimeter = 0;
+  for (let index = 0; index < points.length; index += 1) {
+    const next = points[(index + 1) % points.length];
+    const length = points[index].distanceTo(next);
+    lengths.push(length);
+    perimeter += length;
   }
+  const count = Math.max(1, Math.floor(perimeter / spacing));
+  const step = perimeter / count;
+  const samples = [];
+  let segmentIndex = 0;
+  let segmentStart = 0;
 
-  for (const side of [-1, 1]) {
-    const tunnel = box(group, new THREE.BoxGeometry(8, 3.4, 4.5), materials.graphite, [0, 1.55, side * 43.2]);
-    tunnel.material = materials.tunnel;
-    box(group, new THREE.BoxGeometry(9.2, 0.28, 5), materials.roof, [0, 3.35, side * 43.2]);
+  for (let sampleIndex = 0; sampleIndex < count; sampleIndex += 1) {
+    const distance = sampleIndex * step;
+    while (distance > segmentStart + lengths[segmentIndex] && segmentIndex < lengths.length - 1) {
+      segmentStart += lengths[segmentIndex];
+      segmentIndex += 1;
+    }
+    const start = points[segmentIndex];
+    const end = points[(segmentIndex + 1) % points.length];
+    const progress = lengths[segmentIndex] > 0
+      ? (distance - segmentStart) / lengths[segmentIndex]
+      : 0;
+    samples.push(start.clone().lerp(end, progress));
   }
+  return samples;
+}
 
-  for (const x of [-48, 48]) {
-    for (const z of [-38.7, 38.7]) {
-      box(group, new THREE.BoxGeometry(4, 1.2, 1.3), materials.graphite, [x, 0.62, z]);
+function roundedRectangleNormal(point, width, depth, radius) {
+  const coreX = Math.max(0, width / 2 - radius);
+  const coreZ = Math.max(0, depth / 2 - radius);
+  const nearestX = THREE.MathUtils.clamp(point.x, -coreX, coreX);
+  const nearestZ = THREE.MathUtils.clamp(point.y, -coreZ, coreZ);
+  const normal = new THREE.Vector2(point.x - nearestX, point.y - nearestZ);
+  if (normal.lengthSq() < 1e-6) {
+    if (Math.abs(point.x) > Math.abs(point.y)) normal.set(Math.sign(point.x), 0);
+    else normal.set(0, Math.sign(point.y));
+  }
+  return normal.normalize();
+}
+
+function boundaryZAtX(width, depth, radius, x) {
+  const coreX = width / 2 - radius;
+  const coreZ = depth / 2 - radius;
+  const cornerX = Math.max(0, Math.abs(x) - coreX);
+  return coreZ + Math.sqrt(Math.max(0, radius ** 2 - cornerX ** 2));
+}
+
+function boundaryXAtZ(width, depth, radius, z) {
+  const coreX = width / 2 - radius;
+  const coreZ = depth / 2 - radius;
+  const cornerZ = Math.max(0, Math.abs(z) - coreZ);
+  return coreX + Math.sqrt(Math.max(0, radius ** 2 - cornerZ ** 2));
+}
+
+function classifySide(normal) {
+  if (Math.abs(normal.y) >= Math.abs(normal.x)) return normal.y < 0 ? 'north' : 'south';
+  return normal.x < 0 ? 'west' : 'east';
+}
+
+function insideAisle(point, normal) {
+  if (Math.abs(Math.abs(normal.x) - Math.abs(normal.y)) < 0.16) return true;
+  const longSide = Math.abs(normal.y) >= Math.abs(normal.x);
+  const coordinate = longSide ? point.x : point.y;
+  const aisleCenters = longSide ? [0, -40, 40] : [0, -27, 27];
+  return aisleCenters.some(center => Math.abs(coordinate - center) < 0.82);
+}
+
+function sideColor(side) {
+  return side === 'north' || side === 'east' ? COLORS.blue : COLORS.red;
+}
+
+function addBowlTier(group, materials, seatRecords, config) {
+  for (let row = 0; row < config.rows; row += 1) {
+    const innerOffset = config.offset + row * config.tread;
+    const outerOffset = innerOffset + config.tread;
+    const inner = {
+      width: ARENA.innerWidth + innerOffset * 2,
+      depth: ARENA.innerDepth + innerOffset * 2,
+      radius: ARENA.innerRadius + innerOffset,
+    };
+    const outer = {
+      width: ARENA.innerWidth + outerOffset * 2,
+      depth: ARENA.innerDepth + outerOffset * 2,
+      radius: ARENA.innerRadius + outerOffset,
+    };
+    const rowMaterials = row % 2 === 0
+      ? [materials.concreteLight, materials.concrete]
+      : [materials.concrete, materials.concreteDark];
+    addRing(
+      group,
+      outer,
+      inner,
+      config.rise,
+      config.baseY + row * config.rise,
+      rowMaterials,
+    );
+
+    const centerOffset = innerOffset + config.tread * 0.5;
+    const seatWidth = ARENA.innerWidth + centerOffset * 2;
+    const seatDepth = ARENA.innerDepth + centerOffset * 2;
+    const seatRadius = ARENA.innerRadius + centerOffset;
+    const points = roundedRectanglePoints(seatWidth, seatDepth, seatRadius, 18);
+    const seatTop = config.baseY + (row + 1) * config.rise;
+    for (const point of sampleClosedPolyline(points, 1.08)) {
+      const normal = roundedRectangleNormal(point, seatWidth, seatDepth, seatRadius);
+      if (insideAisle(point, normal)) continue;
+      const side = classifySide(normal);
+      seatRecords.push({
+        x: point.x,
+        z: point.y,
+        y: seatTop,
+        normal,
+        color: sideColor(side),
+      });
     }
   }
 }
 
-function addFloodlights(group, scene, materials) {
-  const corners = [
-    [-70, -51],
-    [-70, 51],
-    [70, -51],
-    [70, 51],
-  ];
-  const frameHorizontal = new THREE.BoxGeometry(9.6, 0.22, 0.3);
-  const frameVertical = new THREE.BoxGeometry(0.22, 4.4, 0.3);
-  const housingGeometry = new THREE.CylinderGeometry(0.38, 0.34, 0.3, 14);
-  const lensGeometry = new THREE.CircleGeometry(0.27, 18);
-  const headForward = new THREE.Vector3(0, 0, 1);
-  const fieldTarget = new THREE.Vector3(0, 5, 0);
-  const lensMaterial = standard(0xfff7d6, {
-    emissive: 0xfff0b5,
-    emissiveIntensity: 1.8,
-    roughness: 0.35,
+function addSeats(group, materials, records) {
+  const cushionGeometry = new THREE.BoxGeometry(0.82, 0.16, 0.62);
+  const backGeometry = new THREE.BoxGeometry(0.82, 0.64, 0.14);
+  const cushions = new THREE.InstancedMesh(cushionGeometry, materials.seats, records.length);
+  const backs = new THREE.InstancedMesh(backGeometry, materials.seats, records.length);
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  const scale = new THREE.Vector3(1, 1, 1);
+  const position = new THREE.Vector3();
+  const yAxis = new THREE.Vector3(0, 1, 0);
+
+  records.forEach((record, index) => {
+    const yaw = Math.atan2(record.normal.x, record.normal.y);
+    quaternion.setFromAxisAngle(yAxis, yaw);
+    position.set(record.x, record.y + 0.11, record.z);
+    matrix.compose(position, quaternion, scale);
+    cushions.setMatrixAt(index, matrix);
+    cushions.setColorAt(index, new THREE.Color(record.color));
+
+    position.set(
+      record.x + record.normal.x * 0.27,
+      record.y + 0.43,
+      record.z + record.normal.y * 0.27,
+    );
+    matrix.compose(position, quaternion, scale);
+    backs.setMatrixAt(index, matrix);
+    backs.setColorAt(index, new THREE.Color(record.color));
   });
-  const housingRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-  const instanceScale = new THREE.Vector3(1, 1, 1);
 
-  for (const [x, z] of corners) {
-    const tower = new THREE.Group();
-    tower.position.set(x, 0, z);
-    const leanX = -Math.sign(x) * 0.75;
-    const leanZ = -Math.sign(z) * 0.75;
-    for (const [offsetX, offsetZ] of [[-0.55, -0.55], [0.55, -0.55], [-0.55, 0.55], [0.55, 0.55]]) {
-      const column = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 20, 8), materials.graphite);
-      column.position.set(offsetX + leanX * 0.25, 10, offsetZ + leanZ * 0.25);
-      column.rotation.z = leanX * 0.006;
-      column.rotation.x = -leanZ * 0.006;
-      tower.add(column);
+  for (const mesh of [cushions, backs]) {
+    mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    mesh.castShadow = false;
+    mesh.receiveShadow = true;
+    mesh.computeBoundingBox();
+    mesh.computeBoundingSphere();
+    group.add(mesh);
+  }
+}
+
+function addConcourseRail(group, materials, dimensions, y) {
+  const points2D = roundedRectanglePoints(
+    dimensions.width,
+    dimensions.depth,
+    dimensions.radius,
+    24,
+  );
+  const linePoints = points2D.map(point => new THREE.Vector3(point.x, y + 1.15, point.y));
+  const railing = new THREE.LineLoop(
+    new THREE.BufferGeometry().setFromPoints(linePoints),
+    materials.railing,
+  );
+  group.add(railing);
+
+  const posts = sampleClosedPolyline(points2D, 5.4);
+  const geometry = new THREE.CylinderGeometry(0.035, 0.045, 1.15, 6);
+  const instanced = new THREE.InstancedMesh(geometry, materials.graphite, posts.length);
+  const matrix = new THREE.Matrix4();
+  posts.forEach((point, index) => {
+    matrix.makeTranslation(point.x, y + 0.575, point.y);
+    instanced.setMatrixAt(index, matrix);
+  });
+  instanced.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  instanced.computeBoundingSphere();
+  group.add(instanced);
+}
+
+function addStaticInstances(group, geometry, material, matrices, options = {}) {
+  const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
+  matrices.forEach((matrix, index) => mesh.setMatrixAt(index, matrix));
+  mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  mesh.computeBoundingBox();
+  mesh.computeBoundingSphere();
+  mesh.castShadow = options.castShadow ?? false;
+  mesh.receiveShadow = options.receiveShadow ?? false;
+  group.add(mesh);
+  return mesh;
+}
+
+function addPortals(group, materials, concourseOuter, floorY) {
+  const portals = [];
+  const longZ = concourseOuter.depth / 2 - 0.42;
+  for (const zSign of [-1, 1]) {
+    for (const x of [-46, 0, 46]) {
+      portals.push([[x, floorY, zSign * longZ], zSign < 0 ? Math.PI : 0]);
     }
-    const bracePoints = [];
-    for (const height of [4, 8, 12, 16]) {
-      bracePoints.push(
-        new THREE.Vector3(-0.55, height - 1.6, -0.55), new THREE.Vector3(0.55, height + 1.6, -0.55),
-        new THREE.Vector3(0.55, height - 1.6, -0.55), new THREE.Vector3(-0.55, height + 1.6, -0.55),
-        new THREE.Vector3(-0.55, height - 1.6, 0.55), new THREE.Vector3(0.55, height + 1.6, 0.55),
-        new THREE.Vector3(0.55, height - 1.6, 0.55), new THREE.Vector3(-0.55, height + 1.6, 0.55),
-      );
+  }
+  const endX = concourseOuter.width / 2 - 0.42;
+  for (const xSign of [-1, 1]) {
+    for (const z of [-28, 0, 28]) {
+      portals.push([[xSign * endX, floorY, z], xSign < 0 ? Math.PI / 2 : -Math.PI / 2]);
     }
-    tower.add(new THREE.LineSegments(
-      new THREE.BufferGeometry().setFromPoints(bracePoints),
-      new THREE.LineBasicMaterial({ color: materials.graphite.color }),
-    ));
+  }
 
-    const head = new THREE.Group();
-    head.position.set(leanX, 20.3, leanZ);
-    const headWorldPosition = new THREE.Vector3(x + leanX, 20.3, z + leanZ);
-    const headDirection = fieldTarget.clone().sub(headWorldPosition).normalize();
-    head.quaternion.setFromUnitVectors(headForward, headDirection);
-
-    for (const y of [-2.1, 2.1]) {
-      const rail = new THREE.Mesh(frameHorizontal, materials.graphite);
-      rail.position.set(0, y, -0.06);
-      head.add(rail);
+  const openingMatrices = [];
+  const topMatrices = [];
+  const sideMatrices = [];
+  const quaternion = new THREE.Quaternion();
+  const scale = new THREE.Vector3(1, 1, 1);
+  const base = new THREE.Matrix4();
+  const local = new THREE.Matrix4();
+  const world = new THREE.Matrix4();
+  for (const [position, rotationY] of portals) {
+    quaternion.setFromAxisAngle(UP, rotationY);
+    base.compose(new THREE.Vector3(...position), quaternion, scale);
+    local.makeTranslation(0, 1.35, 0);
+    openingMatrices.push(world.multiplyMatrices(base, local).clone());
+    local.makeTranslation(0, 2.85, 0);
+    topMatrices.push(world.multiplyMatrices(base, local).clone());
+    for (const x of [-3.72, 3.72]) {
+      local.makeTranslation(x, 1.43, 0);
+      sideMatrices.push(world.multiplyMatrices(base, local).clone());
     }
-    for (const xPosition of [-4.7, 0, 4.7]) {
-      const rail = new THREE.Mesh(frameVertical, materials.graphite);
-      rail.position.set(xPosition, 0, -0.06);
-      head.add(rail);
+  }
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(7.1, 2.7, 0.2),
+    materials.black,
+    openingMatrices,
+  );
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(7.8, 0.3, 0.28),
+    materials.concreteDark,
+    topMatrices,
+  );
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(0.32, 2.85, 0.28),
+    materials.concreteDark,
+    sideMatrices,
+  );
+}
+
+function addColumns(group, materials) {
+  const columnPath = roundedRectanglePoints(226, 188, 65, 24);
+  const positions = sampleClosedPolyline(columnPath, 18);
+  const columnHeight = ARENA.roof.outerUndersideY;
+  const geometry = new THREE.CylinderGeometry(0.22, 0.36, columnHeight, 10);
+  const columns = new THREE.InstancedMesh(geometry, materials.graphite, positions.length);
+  const matrix = new THREE.Matrix4();
+  positions.forEach((point, index) => {
+    matrix.makeTranslation(point.x, columnHeight / 2, point.y);
+    columns.setMatrixAt(index, matrix);
+  });
+  columns.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  columns.computeBoundingSphere();
+  columns.castShadow = false;
+  group.add(columns);
+}
+
+function addRoofRibs(group, materials) {
+  const beams = [];
+  for (const side of [-1, 1]) {
+    for (const x of [-66, -44, -22, 0, 22, 44, 66]) {
+      const innerZ = boundaryZAtX(
+        ARENA.roof.innerWidth,
+        ARENA.roof.innerDepth,
+        ARENA.roof.innerRadius,
+        x,
+      ) + 0.6;
+      const outerZ = boundaryZAtX(
+        ARENA.roof.outerWidth,
+        ARENA.roof.outerDepth,
+        ARENA.roof.outerRadius,
+        x,
+      ) - 0.5;
+      beams.push([
+        new THREE.Vector3(x, ARENA.roof.innerUndersideY - 0.14, side * innerZ),
+        new THREE.Vector3(x, ARENA.roof.outerUndersideY - 0.14, side * outerZ),
+      ]);
     }
+  }
+  for (const side of [-1, 1]) {
+    for (const z of [-42, -21, 0, 21, 42]) {
+      const innerX = boundaryXAtZ(
+        ARENA.roof.innerWidth,
+        ARENA.roof.innerDepth,
+        ARENA.roof.innerRadius,
+        z,
+      ) + 0.6;
+      const outerX = boundaryXAtZ(
+        ARENA.roof.outerWidth,
+        ARENA.roof.outerDepth,
+        ARENA.roof.outerRadius,
+        z,
+      ) - 0.5;
+      beams.push([
+        new THREE.Vector3(side * innerX, ARENA.roof.innerUndersideY - 0.14, z),
+        new THREE.Vector3(side * outerX, ARENA.roof.outerUndersideY - 0.14, z),
+      ]);
+    }
+  }
+  const ribs = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(0.22, 0.28, 1),
+    materials.graphite,
+    beams.length,
+  );
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  const scale = new THREE.Vector3();
+  beams.forEach(([start, end], index) => {
+    const direction = end.clone().sub(start);
+    const length = direction.length();
+    quaternion.setFromUnitVectors(FORWARD, direction.normalize());
+    scale.set(1, 1, length);
+    matrix.compose(start.clone().add(end).multiplyScalar(0.5), quaternion, scale);
+    ribs.setMatrixAt(index, matrix);
+  });
+  ribs.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  ribs.computeBoundingSphere();
+  group.add(ribs);
+}
 
-    const yoke = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 0.7), materials.graphite);
-    yoke.position.set(0, -2.48, -0.28);
-    head.add(yoke);
+function addIntegratedLighting(group, materials) {
+  const horizontalMatrices = [];
+  const verticalMatrices = [];
+  const supportMatrices = [];
+  const mountMatrices = [];
+  const housingMatrices = [];
+  const lensMatrices = [];
+  const local = new THREE.Matrix4();
+  const world = new THREE.Matrix4();
+  const pushLocal = (matrices, bankMatrix, x, y, z) => {
+    local.makeTranslation(x, y, z);
+    matrices.push(world.multiplyMatrices(bankMatrix, local).clone());
+  };
 
-    const lampCount = 32;
-    const housings = new THREE.InstancedMesh(housingGeometry, materials.graphite, lampCount);
-    const lenses = new THREE.InstancedMesh(lensGeometry, lensMaterial, lampCount);
-    const housingMatrix = new THREE.Matrix4();
-    const lensMatrix = new THREE.Matrix4();
-    let lampIndex = 0;
-    for (let row = 0; row < 4; row += 1) {
-      for (let column = 0; column < 8; column += 1) {
-        const lampPosition = new THREE.Vector3(-3.85 + column * 1.1, -1.5 + row, 0.08);
-        housingMatrix.compose(lampPosition, housingRotation, instanceScale);
-        lensMatrix.compose(
-          new THREE.Vector3(lampPosition.x, lampPosition.y, 0.25),
-          new THREE.Quaternion(),
-          instanceScale,
-        );
-        housings.setMatrixAt(lampIndex, housingMatrix);
-        lenses.setMatrixAt(lampIndex, lensMatrix);
-        lampIndex += 1;
+  for (const zSign of [-1, 1]) {
+    for (const xPosition of [-54, -18, 18, 54]) {
+      const position = new THREE.Vector3(xPosition, 18.82, zSign * 63.3);
+      const target = new THREE.Vector3(xPosition * 0.18, 2.4, zSign * -8);
+      const forward = target.clone().sub(position).normalize();
+      const right = new THREE.Vector3().crossVectors(UP, forward).normalize();
+      const localUp = new THREE.Vector3().crossVectors(forward, right).normalize();
+      const bankMatrix = new THREE.Matrix4().makeBasis(right, localUp, forward);
+      bankMatrix.setPosition(position);
+
+      for (const y of [-1.08, 1.08]) pushLocal(horizontalMatrices, bankMatrix, 0, y, 0);
+      for (const x of [-2.84, 0, 2.84]) pushLocal(verticalMatrices, bankMatrix, x, 0, 0);
+      for (const x of [-2, 2]) pushLocal(supportMatrices, bankMatrix, x, 1.65, -0.12);
+      pushLocal(mountMatrices, bankMatrix, 0, 2.26, -0.13);
+
+      for (let row = 0; row < 3; row += 1) {
+        for (let column = 0; column < 6; column += 1) {
+          const x = (column - 2.5) * 0.88;
+          const y = (1 - row) * 0.68;
+          pushLocal(housingMatrices, bankMatrix, x, y, 0.03);
+          pushLocal(lensMatrices, bankMatrix, x, y, 0.205);
+        }
       }
     }
-    housings.instanceMatrix.needsUpdate = true;
-    lenses.instanceMatrix.needsUpdate = true;
-    head.add(housings, lenses);
-    tower.add(head);
-    group.add(tower);
-
-    const light = new THREE.SpotLight(0xfff7df, 130, 175, Math.PI / 4.2, 0.82, 1.5);
-    light.position.copy(headWorldPosition);
-    light.target.position.copy(fieldTarget);
-    scene.add(light, light.target);
   }
+
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(5.8, 0.14, 0.16),
+    materials.graphite,
+    horizontalMatrices,
+  );
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(0.14, 2.3, 0.16),
+    materials.graphite,
+    verticalMatrices,
+  );
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(0.16, 1.18, 0.2),
+    materials.graphite,
+    supportMatrices,
+  );
+  addStaticInstances(
+    group,
+    new THREE.BoxGeometry(4.5, 0.16, 0.48),
+    materials.graphite,
+    mountMatrices,
+  );
+  const housingGeometry = new THREE.CylinderGeometry(0.27, 0.27, 0.3, 12);
+  housingGeometry.rotateX(Math.PI / 2);
+  addStaticInstances(group, housingGeometry, materials.lampHousing, housingMatrices);
+  addStaticInstances(
+    group,
+    new THREE.CircleGeometry(0.22, 16),
+    materials.lamp,
+    lensMatrices,
+  );
+}
+
+function addAdvertising(group, materials) {
+  const longPositions = [];
+  for (const side of [-1, 1]) {
+    for (let index = -6; index <= 6; index += 1) longPositions.push([index * 8.25, side * 36.35]);
+  }
+  const longBoards = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(7.9, 0.92, 0.28),
+    materials.advertising,
+    longPositions.length,
+  );
+  const matrix = new THREE.Matrix4();
+  longPositions.forEach(([x, z], index) => {
+    matrix.makeTranslation(x, 0.46, z);
+    longBoards.setMatrixAt(index, matrix);
+  });
+  longBoards.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  longBoards.computeBoundingSphere();
+  group.add(longBoards);
+
+  const endPositions = [];
+  for (const side of [-1, 1]) {
+    for (const z of [-28, -20, -12, 12, 20, 28]) endPositions.push([side * 55.85, z]);
+  }
+  const endBoards = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(7.5, 0.92, 0.28),
+    materials.advertising,
+    endPositions.length,
+  );
+  const rotation = new THREE.Matrix4().makeRotationY(Math.PI / 2);
+  endPositions.forEach(([x, z], index) => {
+    matrix.makeTranslation(x, 0.46, z).multiply(rotation);
+    endBoards.setMatrixAt(index, matrix);
+  });
+  endBoards.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+  endBoards.computeBoundingSphere();
+  group.add(endBoards);
 }
 
 export function buildStadium(scene) {
   const group = new THREE.Group();
-  group.name = 'stadium-environment';
+  group.name = 'arena';
   const materials = {
-    concrete: standard(COLORS.concrete),
-    concreteDark: standard(COLORS.concreteDark),
-    concourse: standard(COLORS.concourse),
-    graphite: standard(COLORS.graphite, { roughness: 0.7, metalness: 0.18 }),
-    ground: standard(COLORS.ground),
-    roof: standard(0x565e59, { roughness: 0.62, metalness: 0.25 }),
-    tunnel: standard(COLORS.screen, { roughness: 1 }),
-    ads: COLORS.ads.map(color => standard(color, { roughness: 0.72 })),
+    concrete: standard(COLORS.concrete, { roughness: 0.94, metalness: 0 }),
+    concreteLight: standard(COLORS.concreteLight, { roughness: 0.95, metalness: 0 }),
+    concreteDark: standard(COLORS.concreteDark, { roughness: 0.92, metalness: 0.01 }),
+    graphite: standard(COLORS.graphite, { roughness: 0.62, metalness: 0.28 }),
+    roof: standard(COLORS.roof, { roughness: 0.58, metalness: 0.32 }),
+    roofUnderside: standard(COLORS.roofUnderside, { roughness: 0.68, metalness: 0.22 }),
+    seats: standard(0xffffff, { roughness: 0.72, metalness: 0.01 }),
+    black: standard(COLORS.black, { roughness: 0.9, metalness: 0.02 }),
+    advertising: standard(COLORS.advertising, { roughness: 0.82, metalness: 0.01 }),
+    lampHousing: standard(0x191d1b, { roughness: 0.48, metalness: 0.42 }),
+    lamp: standard(COLORS.lamp, {
+      roughness: 0.26,
+      metalness: 0.02,
+      emissive: 0xffeabd,
+      emissiveIntensity: 4,
+    }),
+    railing: new THREE.LineBasicMaterial({ color: COLORS.graphite, transparent: true, opacity: 0.76 }),
   };
 
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(190, 154), materials.ground);
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(260, 220),
+    standard(COLORS.ground, { roughness: 1, metalness: 0 }),
+  );
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.09;
+  ground.position.y = -0.06;
   ground.receiveShadow = true;
   group.add(ground);
 
-  addLongStand(group, materials, -1);
-  addLongStand(group, materials, 1);
-  addEndStand(group, materials, -1);
-  addEndStand(group, materials, 1);
-  addCornerDecks(group, materials);
-  addSeats(group, materials);
-  addRailings(group, materials);
-  addPitchFurniture(group, materials);
-  addFloodlights(group, scene, materials);
+  const seatRecords = [];
+  addBowlTier(group, materials, seatRecords, {
+    ...ARENA.lower,
+    offset: 0,
+  });
+
+  const lowerOffset = ARENA.lower.rows * ARENA.lower.tread;
+  const lowerTop = ARENA.lower.rows * ARENA.lower.rise;
+  const lowerOuter = {
+    width: ARENA.innerWidth + lowerOffset * 2,
+    depth: ARENA.innerDepth + lowerOffset * 2,
+    radius: ARENA.innerRadius + lowerOffset,
+  };
+  const concourseOffset = lowerOffset + ARENA.concourse.depth;
+  const concourseOuter = {
+    width: ARENA.innerWidth + concourseOffset * 2,
+    depth: ARENA.innerDepth + concourseOffset * 2,
+    radius: ARENA.innerRadius + concourseOffset,
+  };
+  addRing(
+    group,
+    concourseOuter,
+    lowerOuter,
+    ARENA.concourse.height,
+    lowerTop,
+    [materials.concreteLight, materials.concreteDark],
+  );
+  const upperBase = lowerTop + ARENA.concourse.height;
+  addConcourseRail(group, materials, lowerOuter, lowerTop);
+  addPortals(group, materials, concourseOuter, upperBase + 0.02);
+
+  addBowlTier(group, materials, seatRecords, {
+    ...ARENA.upper,
+    offset: concourseOffset,
+    baseY: upperBase,
+  });
+  addSeats(group, materials, seatRecords);
+
+  const upperOffset = concourseOffset + ARENA.upper.rows * ARENA.upper.tread;
+  const upperOuter = {
+    width: ARENA.innerWidth + upperOffset * 2,
+    depth: ARENA.innerDepth + upperOffset * 2,
+    radius: ARENA.innerRadius + upperOffset,
+  };
+  const upperTop = upperBase + ARENA.upper.rows * ARENA.upper.rise;
+  addRing(
+    group,
+    {
+      width: upperOuter.width + 2,
+      depth: upperOuter.depth + 2,
+      radius: upperOuter.radius + 1,
+    },
+    upperOuter,
+    upperTop - 8,
+    8,
+    [materials.concreteDark, materials.concreteDark],
+  );
+
+  addColumns(group, materials);
+  addSlopedRoof(group, materials);
+  addRing(
+    group,
+    {
+      width: ARENA.roof.innerWidth + 3.2,
+      depth: ARENA.roof.innerDepth + 3.2,
+      radius: ARENA.roof.innerRadius + 1.6,
+    },
+    {
+      width: ARENA.roof.innerWidth,
+      depth: ARENA.roof.innerDepth,
+      radius: ARENA.roof.innerRadius,
+    },
+    0.9,
+    ARENA.roof.innerUndersideY - 0.9,
+    [materials.graphite, materials.roofUnderside],
+  );
+  addRoofRibs(group, materials);
+  addIntegratedLighting(group, materials);
+  addAdvertising(group, materials);
 
   scene.add(group);
   return group;
