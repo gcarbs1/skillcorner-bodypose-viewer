@@ -1,4 +1,12 @@
-import * as THREE from 'three';
+/**
+ * Estádio estático do visualizador.
+ *
+ * Todas as camadas (arquibancadas, esplanada, teto, iluminação e placas) partem do
+ * mesmo contorno de retângulo arredondado, o que evita sobreposições e emendas.
+ * As partes repetidas usam instâncias para manter poucas chamadas de desenho.
+ * A direção visual está descrita em docs/direcao-visual.md.
+ */
+import * as THREE from "three";
 
 const COLORS = {
   concrete: 0xaeb4b0,
@@ -38,6 +46,7 @@ const ARENA = {
 const UP = new THREE.Vector3(0, 1, 0);
 const FORWARD = new THREE.Vector3(0, 0, 1);
 
+/** Material padrão fosco com a cor indicada. */
 function standard(color, options = {}) {
   return new THREE.MeshStandardMaterial({
     color,
@@ -48,6 +57,7 @@ function standard(color, options = {}) {
   });
 }
 
+/** Pontos do contorno de um retângulo com cantos arredondados. */
 function roundedRectanglePoints(width, depth, radius, cornerSegments = 14) {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
@@ -64,24 +74,31 @@ function roundedRectanglePoints(width, depth, radius, cornerSegments = 14) {
   for (const [centerX, centerZ, start, end] of corners) {
     for (let segment = 1; segment <= cornerSegments; segment += 1) {
       const angle = THREE.MathUtils.lerp(start, end, segment / cornerSegments);
-      points.push(new THREE.Vector2(
-        centerX + Math.cos(angle) * safeRadius,
-        centerZ + Math.sin(angle) * safeRadius,
-      ));
+      points.push(
+        new THREE.Vector2(
+          centerX + Math.cos(angle) * safeRadius,
+          centerZ + Math.sin(angle) * safeRadius,
+        ),
+      );
     }
-    if (end === 0) points.push(new THREE.Vector2(halfWidth, halfDepth - safeRadius));
-    if (end === Math.PI / 2) points.push(new THREE.Vector2(-halfWidth + safeRadius, halfDepth));
-    if (end === Math.PI) points.push(new THREE.Vector2(-halfWidth, -halfDepth + safeRadius));
+    if (end === 0)
+      points.push(new THREE.Vector2(halfWidth, halfDepth - safeRadius));
+    if (end === Math.PI / 2)
+      points.push(new THREE.Vector2(-halfWidth + safeRadius, halfDepth));
+    if (end === Math.PI)
+      points.push(new THREE.Vector2(-halfWidth, -halfDepth + safeRadius));
   }
   return points;
 }
 
+/** Garante o sentido horário ou anti-horário dos pontos. */
 function orientPoints(points, clockwise) {
   const oriented = [...points];
   if (THREE.ShapeUtils.isClockWise(oriented) !== clockwise) oriented.reverse();
   return oriented;
 }
 
+/** Anel extrudado entre dois contornos arredondados. */
 function roundedRingGeometry(outer, inner, height) {
   const outerPoints = orientPoints(
     roundedRectanglePoints(outer.width, outer.depth, outer.radius),
@@ -109,18 +126,31 @@ function roundedRingGeometry(outer, inner, height) {
   return geometry;
 }
 
+/** Adiciona um anel (parede, muro ou piso) ao grupo. */
 function addRing(group, outer, inner, height, y, materials, options = {}) {
-  const mesh = new THREE.Mesh(roundedRingGeometry(outer, inner, height), materials);
+  const mesh = new THREE.Mesh(
+    roundedRingGeometry(outer, inner, height),
+    materials,
+  );
   mesh.position.y = y;
-  mesh.receiveShadow = options.receiveShadow ?? true;
-  mesh.castShadow = options.castShadow ?? false;
   group.add(mesh);
   return mesh;
 }
 
+/** Geometria do teto inclinado, com abertura central. */
 function slopedRoofGeometry(outer, inner, innerY, outerY, thickness) {
-  const outerLoop = roundedRectanglePoints(outer.width, outer.depth, outer.radius, 24);
-  const innerLoop = roundedRectanglePoints(inner.width, inner.depth, inner.radius, 24);
+  const outerLoop = roundedRectanglePoints(
+    outer.width,
+    outer.depth,
+    outer.radius,
+    24,
+  );
+  const innerLoop = roundedRectanglePoints(
+    inner.width,
+    inner.depth,
+    inner.radius,
+    24,
+  );
   const positions = [];
   const groups = [];
   const vertex = (point, y) => [point.x, y, point.y];
@@ -173,13 +203,18 @@ function slopedRoofGeometry(outer, inner, innerY, outerY, thickness) {
   });
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  for (const group of groups) geometry.addGroup(group.start, group.count, group.materialIndex);
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3),
+  );
+  for (const group of groups)
+    geometry.addGroup(group.start, group.count, group.materialIndex);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
 }
 
+/** Adiciona o teto contínuo do estádio. */
 function addSlopedRoof(group, materials) {
   const outer = {
     width: ARENA.roof.outerWidth,
@@ -201,10 +236,10 @@ function addSlopedRoof(group, materials) {
     ),
     [materials.roof, materials.roofUnderside, materials.graphite],
   );
-  roof.receiveShadow = true;
   group.add(roof);
 }
 
+/** Amostra pontos igualmente espaçados ao longo de um contorno fechado. */
 function sampleClosedPolyline(points, spacing) {
   const lengths = [];
   let perimeter = 0;
@@ -222,20 +257,25 @@ function sampleClosedPolyline(points, spacing) {
 
   for (let sampleIndex = 0; sampleIndex < count; sampleIndex += 1) {
     const distance = sampleIndex * step;
-    while (distance > segmentStart + lengths[segmentIndex] && segmentIndex < lengths.length - 1) {
+    while (
+      distance > segmentStart + lengths[segmentIndex] &&
+      segmentIndex < lengths.length - 1
+    ) {
       segmentStart += lengths[segmentIndex];
       segmentIndex += 1;
     }
     const start = points[segmentIndex];
     const end = points[(segmentIndex + 1) % points.length];
-    const progress = lengths[segmentIndex] > 0
-      ? (distance - segmentStart) / lengths[segmentIndex]
-      : 0;
+    const progress =
+      lengths[segmentIndex] > 0
+        ? (distance - segmentStart) / lengths[segmentIndex]
+        : 0;
     samples.push(start.clone().lerp(end, progress));
   }
   return samples;
 }
 
+/** Direção da normal do contorno em um ponto. */
 function roundedRectangleNormal(point, width, depth, radius) {
   const coreX = Math.max(0, width / 2 - radius);
   const coreZ = Math.max(0, depth / 2 - radius);
@@ -243,12 +283,14 @@ function roundedRectangleNormal(point, width, depth, radius) {
   const nearestZ = THREE.MathUtils.clamp(point.y, -coreZ, coreZ);
   const normal = new THREE.Vector2(point.x - nearestX, point.y - nearestZ);
   if (normal.lengthSq() < 1e-6) {
-    if (Math.abs(point.x) > Math.abs(point.y)) normal.set(Math.sign(point.x), 0);
+    if (Math.abs(point.x) > Math.abs(point.y))
+      normal.set(Math.sign(point.x), 0);
     else normal.set(0, Math.sign(point.y));
   }
   return normal.normalize();
 }
 
+/** Profundidade (z) do contorno para um dado x. */
 function boundaryZAtX(width, depth, radius, x) {
   const coreX = width / 2 - radius;
   const coreZ = depth / 2 - radius;
@@ -256,6 +298,7 @@ function boundaryZAtX(width, depth, radius, x) {
   return coreZ + Math.sqrt(Math.max(0, radius ** 2 - cornerX ** 2));
 }
 
+/** Largura (x) do contorno para um dado z. */
 function boundaryXAtZ(width, depth, radius, z) {
   const coreX = width / 2 - radius;
   const coreZ = depth / 2 - radius;
@@ -263,23 +306,28 @@ function boundaryXAtZ(width, depth, radius, z) {
   return coreX + Math.sqrt(Math.max(0, radius ** 2 - cornerZ ** 2));
 }
 
+/** Classifica a normal em um dos quatro lados do estádio. */
 function classifySide(normal) {
-  if (Math.abs(normal.y) >= Math.abs(normal.x)) return normal.y < 0 ? 'north' : 'south';
-  return normal.x < 0 ? 'west' : 'east';
+  if (Math.abs(normal.y) >= Math.abs(normal.x))
+    return normal.y < 0 ? "north" : "south";
+  return normal.x < 0 ? "west" : "east";
 }
 
+/** Indica se o ponto cai no corredor que separa as seções. */
 function insideAisle(point, normal) {
   if (Math.abs(Math.abs(normal.x) - Math.abs(normal.y)) < 0.16) return true;
   const longSide = Math.abs(normal.y) >= Math.abs(normal.x);
   const coordinate = longSide ? point.x : point.y;
   const aisleCenters = longSide ? [0, -40, 40] : [0, -27, 27];
-  return aisleCenters.some(center => Math.abs(coordinate - center) < 0.82);
+  return aisleCenters.some((center) => Math.abs(coordinate - center) < 0.82);
 }
 
+/** Cor dos assentos de cada lado (azul ou vermelho). */
 function sideColor(side) {
-  return side === 'north' || side === 'east' ? COLORS.blue : COLORS.red;
+  return side === "north" || side === "east" ? COLORS.blue : COLORS.red;
 }
 
+/** Adiciona um anel de arquibancada, fileira por fileira. */
 function addBowlTier(group, materials, seatRecords, config) {
   for (let row = 0; row < config.rows; row += 1) {
     const innerOffset = config.offset + row * config.tread;
@@ -294,9 +342,10 @@ function addBowlTier(group, materials, seatRecords, config) {
       depth: ARENA.innerDepth + outerOffset * 2,
       radius: ARENA.innerRadius + outerOffset,
     };
-    const rowMaterials = row % 2 === 0
-      ? [materials.concreteLight, materials.concrete]
-      : [materials.concrete, materials.concreteDark];
+    const rowMaterials =
+      row % 2 === 0
+        ? [materials.concreteLight, materials.concrete]
+        : [materials.concrete, materials.concreteDark];
     addRing(
       group,
       outer,
@@ -313,7 +362,12 @@ function addBowlTier(group, materials, seatRecords, config) {
     const points = roundedRectanglePoints(seatWidth, seatDepth, seatRadius, 18);
     const seatTop = config.baseY + (row + 1) * config.rise;
     for (const point of sampleClosedPolyline(points, 1.08)) {
-      const normal = roundedRectangleNormal(point, seatWidth, seatDepth, seatRadius);
+      const normal = roundedRectangleNormal(
+        point,
+        seatWidth,
+        seatDepth,
+        seatRadius,
+      );
       if (insideAisle(point, normal)) continue;
       const side = classifySide(normal);
       seatRecords.push({
@@ -327,11 +381,20 @@ function addBowlTier(group, materials, seatRecords, config) {
   }
 }
 
+/** Cria os assentos como instâncias de uma única geometria. */
 function addSeats(group, materials, records) {
   const cushionGeometry = new THREE.BoxGeometry(0.82, 0.16, 0.62);
   const backGeometry = new THREE.BoxGeometry(0.82, 0.64, 0.14);
-  const cushions = new THREE.InstancedMesh(cushionGeometry, materials.seats, records.length);
-  const backs = new THREE.InstancedMesh(backGeometry, materials.seats, records.length);
+  const cushions = new THREE.InstancedMesh(
+    cushionGeometry,
+    materials.seats,
+    records.length,
+  );
+  const backs = new THREE.InstancedMesh(
+    backGeometry,
+    materials.seats,
+    records.length,
+  );
   const matrix = new THREE.Matrix4();
   const quaternion = new THREE.Quaternion();
   const scale = new THREE.Vector3(1, 1, 1);
@@ -360,14 +423,13 @@ function addSeats(group, materials, records) {
     mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    mesh.castShadow = false;
-    mesh.receiveShadow = true;
     mesh.computeBoundingBox();
     mesh.computeBoundingSphere();
     group.add(mesh);
   }
 }
 
+/** Adiciona o guarda-corpo da esplanada. */
 function addConcourseRail(group, materials, dimensions, y) {
   const points2D = roundedRectanglePoints(
     dimensions.width,
@@ -375,7 +437,9 @@ function addConcourseRail(group, materials, dimensions, y) {
     dimensions.radius,
     24,
   );
-  const linePoints = points2D.map(point => new THREE.Vector3(point.x, y + 1.15, point.y));
+  const linePoints = points2D.map(
+    (point) => new THREE.Vector3(point.x, y + 1.15, point.y),
+  );
   const railing = new THREE.LineLoop(
     new THREE.BufferGeometry().setFromPoints(linePoints),
     materials.railing,
@@ -384,7 +448,11 @@ function addConcourseRail(group, materials, dimensions, y) {
 
   const posts = sampleClosedPolyline(points2D, 5.4);
   const geometry = new THREE.CylinderGeometry(0.035, 0.045, 1.15, 6);
-  const instanced = new THREE.InstancedMesh(geometry, materials.graphite, posts.length);
+  const instanced = new THREE.InstancedMesh(
+    geometry,
+    materials.graphite,
+    posts.length,
+  );
   const matrix = new THREE.Matrix4();
   posts.forEach((point, index) => {
     matrix.makeTranslation(point.x, y + 0.575, point.y);
@@ -395,18 +463,18 @@ function addConcourseRail(group, materials, dimensions, y) {
   group.add(instanced);
 }
 
+/** Cria uma malha instanciada estática a partir de matrizes. */
 function addStaticInstances(group, geometry, material, matrices, options = {}) {
   const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
   matrices.forEach((matrix, index) => mesh.setMatrixAt(index, matrix));
   mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
   mesh.computeBoundingBox();
   mesh.computeBoundingSphere();
-  mesh.castShadow = options.castShadow ?? false;
-  mesh.receiveShadow = options.receiveShadow ?? false;
   group.add(mesh);
   return mesh;
 }
 
+/** Adiciona os portais emoldurados da esplanada. */
 function addPortals(group, materials, concourseOuter, floorY) {
   const portals = [];
   const longZ = concourseOuter.depth / 2 - 0.42;
@@ -418,7 +486,10 @@ function addPortals(group, materials, concourseOuter, floorY) {
   const endX = concourseOuter.width / 2 - 0.42;
   for (const xSign of [-1, 1]) {
     for (const z of [-28, 0, 28]) {
-      portals.push([[xSign * endX, floorY, z], xSign < 0 ? Math.PI / 2 : -Math.PI / 2]);
+      portals.push([
+        [xSign * endX, floorY, z],
+        xSign < 0 ? Math.PI / 2 : -Math.PI / 2,
+      ]);
     }
   }
 
@@ -462,12 +533,17 @@ function addPortals(group, materials, concourseOuter, floorY) {
   );
 }
 
+/** Adiciona as colunas externas que sustentam o teto. */
 function addColumns(group, materials) {
   const columnPath = roundedRectanglePoints(226, 188, 65, 24);
   const positions = sampleClosedPolyline(columnPath, 18);
   const columnHeight = ARENA.roof.outerUndersideY;
   const geometry = new THREE.CylinderGeometry(0.22, 0.36, columnHeight, 10);
-  const columns = new THREE.InstancedMesh(geometry, materials.graphite, positions.length);
+  const columns = new THREE.InstancedMesh(
+    geometry,
+    materials.graphite,
+    positions.length,
+  );
   const matrix = new THREE.Matrix4();
   positions.forEach((point, index) => {
     matrix.makeTranslation(point.x, columnHeight / 2, point.y);
@@ -475,26 +551,28 @@ function addColumns(group, materials) {
   });
   columns.instanceMatrix.setUsage(THREE.StaticDrawUsage);
   columns.computeBoundingSphere();
-  columns.castShadow = false;
   group.add(columns);
 }
 
+/** Adiciona as nervuras do teto. */
 function addRoofRibs(group, materials) {
   const beams = [];
   for (const side of [-1, 1]) {
     for (const x of [-66, -44, -22, 0, 22, 44, 66]) {
-      const innerZ = boundaryZAtX(
-        ARENA.roof.innerWidth,
-        ARENA.roof.innerDepth,
-        ARENA.roof.innerRadius,
-        x,
-      ) + 0.6;
-      const outerZ = boundaryZAtX(
-        ARENA.roof.outerWidth,
-        ARENA.roof.outerDepth,
-        ARENA.roof.outerRadius,
-        x,
-      ) - 0.5;
+      const innerZ =
+        boundaryZAtX(
+          ARENA.roof.innerWidth,
+          ARENA.roof.innerDepth,
+          ARENA.roof.innerRadius,
+          x,
+        ) + 0.6;
+      const outerZ =
+        boundaryZAtX(
+          ARENA.roof.outerWidth,
+          ARENA.roof.outerDepth,
+          ARENA.roof.outerRadius,
+          x,
+        ) - 0.5;
       beams.push([
         new THREE.Vector3(x, ARENA.roof.innerUndersideY - 0.14, side * innerZ),
         new THREE.Vector3(x, ARENA.roof.outerUndersideY - 0.14, side * outerZ),
@@ -503,18 +581,20 @@ function addRoofRibs(group, materials) {
   }
   for (const side of [-1, 1]) {
     for (const z of [-42, -21, 0, 21, 42]) {
-      const innerX = boundaryXAtZ(
-        ARENA.roof.innerWidth,
-        ARENA.roof.innerDepth,
-        ARENA.roof.innerRadius,
-        z,
-      ) + 0.6;
-      const outerX = boundaryXAtZ(
-        ARENA.roof.outerWidth,
-        ARENA.roof.outerDepth,
-        ARENA.roof.outerRadius,
-        z,
-      ) - 0.5;
+      const innerX =
+        boundaryXAtZ(
+          ARENA.roof.innerWidth,
+          ARENA.roof.innerDepth,
+          ARENA.roof.innerRadius,
+          z,
+        ) + 0.6;
+      const outerX =
+        boundaryXAtZ(
+          ARENA.roof.outerWidth,
+          ARENA.roof.outerDepth,
+          ARENA.roof.outerRadius,
+          z,
+        ) - 0.5;
       beams.push([
         new THREE.Vector3(side * innerX, ARENA.roof.innerUndersideY - 0.14, z),
         new THREE.Vector3(side * outerX, ARENA.roof.outerUndersideY - 0.14, z),
@@ -534,7 +614,11 @@ function addRoofRibs(group, materials) {
     const length = direction.length();
     quaternion.setFromUnitVectors(FORWARD, direction.normalize());
     scale.set(1, 1, length);
-    matrix.compose(start.clone().add(end).multiplyScalar(0.5), quaternion, scale);
+    matrix.compose(
+      start.clone().add(end).multiplyScalar(0.5),
+      quaternion,
+      scale,
+    );
     ribs.setMatrixAt(index, matrix);
   });
   ribs.instanceMatrix.setUsage(THREE.StaticDrawUsage);
@@ -542,6 +626,7 @@ function addRoofRibs(group, materials) {
   group.add(ribs);
 }
 
+/** Adiciona os módulos de refletores sob a borda interna do teto. */
 function addIntegratedLighting(group, materials) {
   const horizontalMatrices = [];
   const verticalMatrices = [];
@@ -562,13 +647,18 @@ function addIntegratedLighting(group, materials) {
       const target = new THREE.Vector3(xPosition * 0.18, 2.4, zSign * -8);
       const forward = target.clone().sub(position).normalize();
       const right = new THREE.Vector3().crossVectors(UP, forward).normalize();
-      const localUp = new THREE.Vector3().crossVectors(forward, right).normalize();
+      const localUp = new THREE.Vector3()
+        .crossVectors(forward, right)
+        .normalize();
       const bankMatrix = new THREE.Matrix4().makeBasis(right, localUp, forward);
       bankMatrix.setPosition(position);
 
-      for (const y of [-1.08, 1.08]) pushLocal(horizontalMatrices, bankMatrix, 0, y, 0);
-      for (const x of [-2.84, 0, 2.84]) pushLocal(verticalMatrices, bankMatrix, x, 0, 0);
-      for (const x of [-2, 2]) pushLocal(supportMatrices, bankMatrix, x, 1.65, -0.12);
+      for (const y of [-1.08, 1.08])
+        pushLocal(horizontalMatrices, bankMatrix, 0, y, 0);
+      for (const x of [-2.84, 0, 2.84])
+        pushLocal(verticalMatrices, bankMatrix, x, 0, 0);
+      for (const x of [-2, 2])
+        pushLocal(supportMatrices, bankMatrix, x, 1.65, -0.12);
       pushLocal(mountMatrices, bankMatrix, 0, 2.26, -0.13);
 
       for (let row = 0; row < 3; row += 1) {
@@ -608,7 +698,12 @@ function addIntegratedLighting(group, materials) {
   );
   const housingGeometry = new THREE.CylinderGeometry(0.27, 0.27, 0.3, 12);
   housingGeometry.rotateX(Math.PI / 2);
-  addStaticInstances(group, housingGeometry, materials.lampHousing, housingMatrices);
+  addStaticInstances(
+    group,
+    housingGeometry,
+    materials.lampHousing,
+    housingMatrices,
+  );
   addStaticInstances(
     group,
     new THREE.CircleGeometry(0.22, 16),
@@ -617,10 +712,12 @@ function addIntegratedLighting(group, materials) {
   );
 }
 
+/** Adiciona as placas de publicidade ao redor do campo, com aberturas nos gols. */
 function addAdvertising(group, materials) {
   const longPositions = [];
   for (const side of [-1, 1]) {
-    for (let index = -6; index <= 6; index += 1) longPositions.push([index * 8.25, side * 36.35]);
+    for (let index = -6; index <= 6; index += 1)
+      longPositions.push([index * 8.25, side * 36.35]);
   }
   const longBoards = new THREE.InstancedMesh(
     new THREE.BoxGeometry(7.9, 0.92, 0.28),
@@ -638,7 +735,8 @@ function addAdvertising(group, materials) {
 
   const endPositions = [];
   for (const side of [-1, 1]) {
-    for (const z of [-28, -20, -12, 12, 20, 28]) endPositions.push([side * 55.85, z]);
+    for (const z of [-28, -20, -12, 12, 20, 28])
+      endPositions.push([side * 55.85, z]);
   }
   const endBoards = new THREE.InstancedMesh(
     new THREE.BoxGeometry(7.5, 0.92, 0.28),
@@ -655,19 +753,32 @@ function addAdvertising(group, materials) {
   group.add(endBoards);
 }
 
+/** Monta o estádio completo e o adiciona à cena. */
 export function buildStadium(scene) {
   const group = new THREE.Group();
-  group.name = 'arena';
+  group.name = "arena";
   const materials = {
     concrete: standard(COLORS.concrete, { roughness: 0.94, metalness: 0 }),
-    concreteLight: standard(COLORS.concreteLight, { roughness: 0.95, metalness: 0 }),
-    concreteDark: standard(COLORS.concreteDark, { roughness: 0.92, metalness: 0.01 }),
+    concreteLight: standard(COLORS.concreteLight, {
+      roughness: 0.95,
+      metalness: 0,
+    }),
+    concreteDark: standard(COLORS.concreteDark, {
+      roughness: 0.92,
+      metalness: 0.01,
+    }),
     graphite: standard(COLORS.graphite, { roughness: 0.62, metalness: 0.28 }),
     roof: standard(COLORS.roof, { roughness: 0.58, metalness: 0.32 }),
-    roofUnderside: standard(COLORS.roofUnderside, { roughness: 0.68, metalness: 0.22 }),
+    roofUnderside: standard(COLORS.roofUnderside, {
+      roughness: 0.68,
+      metalness: 0.22,
+    }),
     seats: standard(0xffffff, { roughness: 0.72, metalness: 0.01 }),
     black: standard(COLORS.black, { roughness: 0.9, metalness: 0.02 }),
-    advertising: standard(COLORS.advertising, { roughness: 0.82, metalness: 0.01 }),
+    advertising: standard(COLORS.advertising, {
+      roughness: 0.82,
+      metalness: 0.01,
+    }),
     lampHousing: standard(0x191d1b, { roughness: 0.48, metalness: 0.42 }),
     lamp: standard(COLORS.lamp, {
       roughness: 0.26,
@@ -675,7 +786,11 @@ export function buildStadium(scene) {
       emissive: 0xffeabd,
       emissiveIntensity: 4,
     }),
-    railing: new THREE.LineBasicMaterial({ color: COLORS.graphite, transparent: true, opacity: 0.76 }),
+    railing: new THREE.LineBasicMaterial({
+      color: COLORS.graphite,
+      transparent: true,
+      opacity: 0.76,
+    }),
   };
 
   const ground = new THREE.Mesh(
@@ -684,7 +799,6 @@ export function buildStadium(scene) {
   );
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.06;
-  ground.receiveShadow = true;
   group.add(ground);
 
   const seatRecords = [];
@@ -706,14 +820,10 @@ export function buildStadium(scene) {
     depth: ARENA.innerDepth + concourseOffset * 2,
     radius: ARENA.innerRadius + concourseOffset,
   };
-  addRing(
-    group,
-    concourseOuter,
-    lowerOuter,
-    ARENA.concourse.height,
-    lowerTop,
-    [materials.concreteLight, materials.concreteDark],
-  );
+  addRing(group, concourseOuter, lowerOuter, ARENA.concourse.height, lowerTop, [
+    materials.concreteLight,
+    materials.concreteDark,
+  ]);
   const upperBase = lowerTop + ARENA.concourse.height;
   addConcourseRail(group, materials, lowerOuter, lowerTop);
   addPortals(group, materials, concourseOuter, upperBase + 0.02);

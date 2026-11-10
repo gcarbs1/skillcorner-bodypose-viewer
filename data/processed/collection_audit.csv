@@ -1,0 +1,9 @@
+metric,value
+generated_at_utc,2026-10-13T17:47:03.374815+00:00
+matches,2
+shots,60
+goals,6
+headers,8
+clips_exported,60
+mean_pose_coverage,0.992
+mean_tracked_players,22.0

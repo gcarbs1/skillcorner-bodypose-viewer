@@ -1,0 +1,61 @@
+id,match_id,event_id,period,time,player_id,player,team,header,goal,x,y,attacking_side,pose_frame,frames,pose_coverage,mean_tracked_players
+1925299_8-67,1925299,8_67,1,05:55.6,560882,F. Bérenguer,Brisbane FC,True,False,47.92,-8.53,right_to_left,8915,126,1.0,22.0
+1925299_8-120,1925299,8_120,1,09:24.9,966112,A. Bugarija,Perth Glory,False,False,39.51,-6.08,left_to_right,14148,154,1.0,22.0
+1925299_8-227,1925299,8_227,1,18:36.2,966114,A. Faisal,Perth Glory,False,False,43.1,14.69,left_to_right,27930,158,1.0,22.0
+1925299_8-270,1925299,8_270,1,22:48.6,560989,T. Mrčela,Perth Glory,True,False,45.43,11.8,left_to_right,34240,126,1.0,22.0
+1925299_8-290,1925299,8_290,1,24:37.2,797298,A. Zimarino,Brisbane FC,False,False,42.15,-11.38,right_to_left,36955,153,1.0,22.0
+1925299_8-305,1925299,8_305,1,26:21.9,966112,A. Bugarija,Perth Glory,False,False,39.24,-5.96,left_to_right,39572,156,1.0,22.0
+1925299_8-308,1925299,8_308,1,26:31.7,560984,D. Williams,Perth Glory,False,False,36.52,5.32,left_to_right,39818,144,1.0,22.0
+1925299_8-317,1925299,8_317,1,29:11.1,560986,K. Jelacic,Brisbane FC,False,False,29.19,-9.9,right_to_left,43802,243,1.0,22.0
+1925299_8-332,1925299,8_332,1,29:56.1,51043,H. Van Der Saag,Brisbane FC,False,False,34.31,-18.24,right_to_left,44928,126,1.0,22.0
+1925299_8-352,1925299,8_352,1,34:57.8,966112,A. Bugarija,Perth Glory,False,False,37.07,8.99,left_to_right,52470,154,1.0,22.0
+1925299_8-510,1925299,8_510,1,46:59.6,966114,A. Faisal,Perth Glory,False,False,45.29,16.47,left_to_right,70515,276,1.0,22.0
+1925299_8-535,1925299,8_535,1,50:11.5,797298,A. Zimarino,Brisbane FC,False,False,28.39,-1.57,right_to_left,75312,148,1.0,22.0
+1925299_8-607,1925299,8_607,2,49:41.5,51002,J. O'Shea,Brisbane FC,False,False,33.21,6.45,left_to_right,82662,143,1.0,22.0
+1925299_8-628,1925299,8_628,2,52:06.3,809166,A. Lebib,Perth Glory,False,False,23.19,-9.04,right_to_left,86282,153,1.0,22.0
+1925299_8-636,1925299,8_636,2,52:57.3,797298,A. Zimarino,Brisbane FC,False,False,40.09,-2.32,left_to_right,87558,126,1.0,22.0
+1925299_8-688,1925299,8_688,2,57:07.8,797298,A. Zimarino,Brisbane FC,True,False,43.72,0.21,left_to_right,93820,126,1.0,22.0
+1925299_8-699,1925299,8_699,2,58:33.7,51002,J. O'Shea,Brisbane FC,False,False,28.87,-2.25,left_to_right,95968,126,1.0,22.0
+1925299_8-701,1925299,8_701,2,59:29.5,966114,A. Faisal,Perth Glory,False,False,31.36,4.31,right_to_left,97362,266,1.0,22.0
+1925299_8-746,1925299,8_746,2,61:53.1,51043,H. Van Der Saag,Brisbane FC,False,False,29.58,-21.49,left_to_right,100952,126,1.0,22.0
+1925299_8-790,1925299,8_790,2,68:25.3,560984,D. Williams,Perth Glory,True,True,45.8,6.87,right_to_left,110758,126,1.0,22.0
+1925299_8-804,1925299,8_804,2,72:02.5,795541,Q. MacNicol,Brisbane FC,False,False,37.97,-10.56,left_to_right,116188,126,1.0,22.0
+1925299_8-805,1925299,8_805,2,72:03.9,560986,K. Jelacic,Brisbane FC,False,False,42.74,-16.3,left_to_right,116222,126,1.0,22.0
+1925299_8-806,1925299,8_806,2,72:04.7,795541,Q. MacNicol,Brisbane FC,False,False,40.65,-10.24,left_to_right,116242,126,1.0,22.0
+1925299_8-871,1925299,8_871,2,77:45.7,965698,J. Brazete,Brisbane FC,False,False,43.07,19.71,left_to_right,124768,302,1.0,22.0
+1925299_8-888,1925299,8_888,2,78:57.3,795537,T. Waddingham,Brisbane FC,True,False,46.76,-1.93,left_to_right,126558,126,1.0,22.0
+1925299_8-961,1925299,8_961,2,87:53.2,965698,J. Brazete,Brisbane FC,False,False,51.32,10.36,left_to_right,139955,213,1.0,22.0
+1925299_8-970,1925299,8_970,2,88:49.6,51002,J. O'Shea,Brisbane FC,False,False,35.7,-13.06,left_to_right,141365,126,1.0,22.0
+1925299_8-973,1925299,8_973,2,89:13.7,965698,J. Brazete,Brisbane FC,False,False,44.55,6.05,left_to_right,141968,126,1.0,22.0
+1925299_8-979,1925299,8_979,2,89:45.2,966115,K. Ngo,Perth Glory,False,False,41.11,16.71,right_to_left,142755,193,1.0,22.0
+1925299_8-1009,1925299,8_1009,2,92:23.8,51722,J. Hingert,Brisbane FC,True,False,46.05,-7.23,left_to_right,146720,126,1.0,22.0
+1996435_8-257,1996435,8_257,1,16:45.0,50959,S. Mauk,Adelaide United,False,False,42.93,-6.77,right_to_left,25150,126,1.0,22.0
+1996435_8-316,1996435,8_316,1,22:16.1,18573,J. Lolley,Sydney FC,False,False,41.25,-11.52,left_to_right,33428,176,1.0,22.0
+1996435_8-317,1996435,8_317,1,22:18.4,51045,A. Cáceres,Sydney FC,False,False,38.92,-10.95,left_to_right,33485,163,1.0,22.0
+1996435_8-338,1996435,8_338,1,24:13.6,51005,D. Pierias,Adelaide United,False,False,41.04,-11.73,right_to_left,36365,183,1.0,22.0
+1996435_8-340,1996435,8_340,1,24:51.2,25534,A. Ouahim,Sydney FC,False,False,28.22,-5.78,left_to_right,37305,163,1.0,22.0
+1996435_8-357,1996435,8_357,1,26:33.6,25534,A. Ouahim,Sydney FC,False,False,40.62,-10.66,left_to_right,39865,283,1.0,22.0
+1996435_8-358,1996435,8_358,1,27:08.2,17231,P. Klimala,Sydney FC,True,False,46.83,7.22,left_to_right,40730,126,0.952,22.0
+1996435_8-367,1996435,8_367,1,28:05.5,51686,A. Goodwin,Adelaide United,False,False,37.43,10.55,right_to_left,42162,256,1.0,22.0
+1996435_8-390,1996435,8_390,1,31:34.7,25534,A. Ouahim,Sydney FC,False,False,40.13,20.17,left_to_right,47392,126,1.0,22.0
+1996435_8-438,1996435,8_438,1,34:56.9,51686,A. Goodwin,Adelaide United,False,False,39.9,-7.65,right_to_left,52448,156,1.0,22.0
+1996435_8-446,1996435,8_446,1,35:27.1,18573,J. Lolley,Sydney FC,False,True,38.59,-7.73,left_to_right,53202,126,1.0,22.0
+1996435_8-461,1996435,8_461,1,37:28.7,51646,J. Yull,Adelaide United,False,False,32.06,-14.72,right_to_left,56242,150,1.0,22.0
+1996435_8-463,1996435,8_463,1,37:35.4,51686,A. Goodwin,Adelaide United,False,False,42.5,5.73,right_to_left,56410,158,1.0,22.0
+1996435_8-511,1996435,8_511,1,42:13.8,51644,R. Grant,Sydney FC,False,False,41.38,-2.81,left_to_right,63370,126,1.0,22.0
+1996435_8-542,1996435,8_542,1,45:14.5,809759,P. Kikianis,Adelaide United,True,False,47.39,7.02,right_to_left,67888,126,1.0,22.0
+1996435_8-561,1996435,8_561,2,45:16.9,17231,P. Klimala,Sydney FC,False,True,46.34,-4.58,right_to_left,70498,126,1.0,22.0
+1996435_8-574,1996435,8_574,2,47:25.0,133852,C. Hollman,Sydney FC,False,False,36.1,7.64,right_to_left,73700,158,1.0,22.0
+1996435_8-578,1996435,8_578,2,48:51.8,51005,D. Pierias,Adelaide United,False,True,45.48,-14.86,left_to_right,75870,126,1.0,22.0
+1996435_8-594,1996435,8_594,2,51:27.3,42513,Z. Clough,Adelaide United,False,False,27.52,-7.93,left_to_right,79758,202,0.584,22.0
+1996435_8-617,1996435,8_617,2,54:02.5,998256,K. Shaw,Sydney FC,False,False,46.58,-1.44,right_to_left,83638,126,1.0,22.0
+1996435_8-766,1996435,8_766,2,67:17.5,795547,Z. de Jesus,Sydney FC,False,False,42.76,-14.41,right_to_left,103512,220,1.0,22.0
+1996435_8-829,1996435,8_829,2,73:42.9,797295,L. Jovanovic,Adelaide United,False,False,45.93,-4.83,left_to_right,113148,126,1.0,22.0
+1996435_8-835,1996435,8_835,2,74:34.5,133854,A. Segecic,Sydney FC,False,True,46.05,1.11,right_to_left,114438,126,1.0,22.0
+1996435_8-877,1996435,8_877,2,79:29.3,133854,A. Segecic,Sydney FC,False,False,48.6,12.26,right_to_left,121808,152,1.0,22.0
+1996435_8-914,1996435,8_914,2,82:53.2,51045,A. Cáceres,Sydney FC,False,True,37.97,10.2,right_to_left,126905,166,1.0,22.0
+1996435_8-965,1996435,8_965,2,88:46.5,51005,D. Pierias,Adelaide United,False,False,38.97,-10.02,left_to_right,135738,184,1.0,22.0
+1996435_8-969,1996435,8_969,2,89:58.8,560893,E. Alagich,Adelaide United,False,False,32.81,-14.1,left_to_right,137545,161,1.0,22.0
+1996435_8-980,1996435,8_980,2,91:27.4,51005,D. Pierias,Adelaide United,False,False,34.99,-1.46,left_to_right,139760,126,1.0,22.0
+1996435_8-993,1996435,8_993,2,92:33.5,560895,Isaias,Adelaide United,False,False,39.29,4.88,left_to_right,141412,126,1.0,22.0
+1996435_8-996,1996435,8_996,2,93:11.9,2858,Douglas Costa,Sydney FC,False,False,29.79,-12.22,right_to_left,142372,208,1.0,22.0

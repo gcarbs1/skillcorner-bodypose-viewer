@@ -1,6 +1,28 @@
+# macOS
 .DS_Store
-.venv/
+**/.DS_Store
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Jupyter
 .ipynb_checkpoints/
-data/source/
+
+# Arquivos de origem baixados pelo notebook de coleta
+data/raw/*
+!data/raw/.gitkeep
+
+# Arquivos locais de ambiente
+.env
+.env.*
+!.env.example

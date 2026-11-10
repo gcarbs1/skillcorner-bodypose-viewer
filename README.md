@@ -1,46 +1,44 @@
-# SkillCorner Body Pose Viewer
+# Exploração visual de dados de Body Pose
 
-Interactive 3D viewer for SkillCorner Open Data. It combines Body Pose and Game
-Intelligence data to replay shots with player poses, ball tracking, head
-orientation, and a continuous two-tier arena environment with integrated roof lighting.
+## Resumo
 
-## Quick start
+Visualizador 3D de finalizações com dados abertos da SkillCorner. Combina Body Pose e Game Intelligence para reproduzir cada chute com a pose dos jogadores, o rastreamento da bola, a orientação da cabeça do finalizador e um estádio de dois anéis. O explorador em `index.html` mostra:
 
-The project uses Python 3.12.x for the data notebook and a static HTTP server.
+- **Biblioteca.** Os 60 chutes das duas partidas disponíveis, filtráveis por partida, com gols destacados.
+- **Cena 3D.** Poses, bola e cone de visão do finalizador sobre o campo, com câmera livre ou automática.
+- **Visão do finalizador.** Uma câmera em primeira pessoa, posicionada na cabeça dele.
+- **Reprodução.** Linha do tempo, 25 FPS, velocidades de 0,5×, 1× e 2× e avanço quadro a quadro.
 
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m http.server 8000
-```
+## Estrutura
 
-Open <http://127.0.0.1:8000>.
+- `notebooks/00-data_collection.ipynb`: coleta, feita em quatro partes:
+  - o download dos arquivos oficiais de Body Pose e Game Intelligence;
+  - a seleção das posses que terminam em chute;
+  - a compactação dos quadros de pose;
+  - a exportação dos lances, do manifesto e da auditoria.
 
-To work on the data pipeline, start JupyterLab from the same environment:
+- `data/raw/`: arquivos de origem baixados pelo notebook (não versionados).
+- `data/processed/`: tabelas prontas para a análise.
+- `docs/`: notas sobre a direção visual do estádio.
+- `index.html` e `html/`: visualizador com Three.js (local); os lances e o manifesto ficam em `html/data/`.
 
-```bash
-jupyter lab
-```
+### Leitura do front-end
 
-## Repository layout
+| arquivo                  | responsabilidade                                                    |
+| ------------------------ | ------------------------------------------------------------------- |
+| `index.html`             | estrutura semântica: abertura, biblioteca de chutes e cena 3D       |
+| `html/styles.css`        | tema, componentes e responsividade, na ordem em que aparecem        |
+| `html/app.js`            | estado, campo, poses, câmera, reprodução e biblioteca de chutes     |
+| `html/stadium.js`        | estádio estático, construído com instâncias                         |
+| `html/data/manifest.json`| lista de partidas, jogadores e chutes                               |
+| `html/data/clips/`       | um JSON compacto por chute, com os quadros de pose e da bola        |
+| `html/vendor/three/`     | cópia local do Three.js e do OrbitControls                          |
 
-```text
-assets/css/    Interface styles
-assets/js/     Reusable Three.js scene modules
-data/clips/    Compact replay files consumed by the viewer
-data/source/   Downloaded source files (ignored by Git)
-docs/          Visual and technical notes
-notebooks/     Data collection and replay generation
-index.html     Static GitHub Pages entry point
-```
+## Saídas
 
-## Data pipeline
-
-Run `notebooks/00-data_collection.ipynb`. It downloads the official Body Pose
-and Game Intelligence files, selects player possessions ending in shots, and
-updates `data/clips/` and `data/manifest.json`.
-
-The notebook currently uses only the Python standard library; JupyterLab and
-IPykernel are development tools pinned in `requirements.txt` so the environment
-is reproducible.
+| arquivo                                | conteúdo                                                          |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `html/data/manifest.json`              | partidas, jogadores e chutes, lidos pelo visualizador             |
+| `html/data/clips/<partida>_<evento>.json` | quadros de pose, rastreamento e bola de cada chute             |
+| `data/processed/shots.csv`             | uma linha por chute, com jogador, time, gol, posição e cobertura  |
+| `data/processed/collection_audit.csv`  | contagens e cobertura da coleta                                   |
