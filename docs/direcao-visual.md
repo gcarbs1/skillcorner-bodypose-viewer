@@ -23,14 +23,14 @@ sobreposições e as emendas que surgem ao unir quatro arquibancadas independent
 - Beira do campo: placas de publicidade pretas e foscas, instanciadas, com aberturas nos gols.
 
 Os assentos são abstraídos em peças instanciadas de poucos polígonos. Eles dão escala humana
-sem virar uma textura de torcida ruidosa nem distrair do esqueleto das poses. As seções azuis
-e vermelhas só mudam em um corredor largo, no canto, então nenhum bloco mistura os times.
+sem virar uma textura de torcida ruidosa nem distrair do esqueleto das poses. Todos os assentos são
+azuis, divididos em seções por corredores neutros.
 
 ## Hierarquia de materiais
 
 - Gramado e atores do replay: maior contraste.
 - Arquibancada de concreto: cinza quente de baixo contraste.
-- Assentos: seções cardeais completas em azul ou vermelho, separadas por corredores neutros.
+- Assentos: todos azuis, separados por corredores neutros.
 - Teto e colunas: grafite médio sobre uma casca de concreto mais clara.
 - Publicidade: quase preto fosco, para emoldurar o campo.
 - Iluminação: lentes quentes emissivas dentro de uma moldura aberta de grafite.

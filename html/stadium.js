@@ -17,7 +17,6 @@ const COLORS = {
   roofUnderside: 0x343b37,
   ground: 0xc7cdc5,
   blue: 0x2858e6,
-  red: 0xdf493c,
   black: 0x111412,
   advertising: 0xf7faf5,
   lamp: 0xfff8df,
@@ -322,9 +321,9 @@ function insideAisle(point, normal) {
   return aisleCenters.some((center) => Math.abs(coordinate - center) < 0.82);
 }
 
-/** Cor dos assentos de cada lado (azul ou vermelho). */
-function sideColor(side) {
-  return side === "north" || side === "east" ? COLORS.blue : COLORS.red;
+/** Cor dos assentos: todos azuis, em todos os lados. */
+function sideColor() {
+  return COLORS.blue;
 }
 
 /** Adiciona um anel de arquibancada, fileira por fileira. */
@@ -375,7 +374,7 @@ function addBowlTier(group, materials, seatRecords, config) {
         z: point.y,
         y: seatTop,
         normal,
-        color: sideColor(side),
+        color: sideColor(),
       });
     }
   }
