@@ -45,8 +45,10 @@ const COLORS = {
   scene = new THREE.Scene();
 scene.background = new THREE.Color(0xd9ded6);
 scene.fog = new THREE.Fog(0xd9ded6, 180, 410);
-const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 480),
-  povCamera = new THREE.PerspectiveCamera(84, 16 / 9, 0.04, 320),
+// Plano próximo afastado (1 m): com 0,1 m a precisão de profundidade acabava e as
+// faixas do gramado "brigavam" entre si (z-fighting) quando a câmera se afastava.
+const camera = new THREE.PerspectiveCamera(43, 1, 1, 480),
+  povCamera = new THREE.PerspectiveCamera(84, 16 / 9, 0.25, 320),
   renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -243,6 +245,10 @@ function buildPitch() {
       new THREE.MeshStandardMaterial({
         color: i % 2 ? 0x4fa65e : 0x3f914f,
         roughness: 1,
+        // Desloca a faixa levemente para a frente na profundidade, garantindo que fique sobre o gramado.
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
       }),
     );
     stripe.rotation.x = -Math.PI / 2;
