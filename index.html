@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Visualização interativa de finalizações com dados de Body Pose, rastreamento e Game Intelligence da SkillCorner."
+      content="Interactive shot visualization using SkillCorner Body Pose, tracking, and Game Intelligence data."
     />
     <meta name="theme-color" content="#f5f3ed" />
-    <title>Exploração visual de dados de Body Pose</title>
-    <!-- Marca a página como habilitada para JavaScript antes da primeira pintura (usado pelas animações do CSS) -->
+    <title>Visual Exploration of Body Pose Data</title>
+    <!-- Marks the page as JavaScript-enabled before the first paint for CSS animations. -->
     <script>
       document.documentElement.classList.add("js");
     </script>
@@ -19,92 +19,73 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap"
     />
-    <link rel="stylesheet" href="html/styles.css" />
+    <link rel="stylesheet" href="html/styles.css?v=20261111-3" />
   </head>
   <body>
-    <!-- 1. Abertura: identidade do projeto, links e título -->
+    <!-- 1. Opening: project title, summary, profile, and data links. -->
     <section class="hero" id="top" aria-labelledby="hero-title">
-      <nav class="site-nav" aria-label="Navegação principal">
-        <a
-          class="identity"
-          href="#top"
-          aria-label="Início: Exploração visual de dados de Body Pose"
-        >
-          <span class="identity-copy"
-            ><strong>Exploração visual de dados de Body Pose</strong></span
-          >
-        </a>
-        <div class="nav-links">
-          <a
-            class="nav-link"
-            href="https://github.com/SkillCorner/opendata"
-            target="_blank"
-            rel="noopener"
-            >Fonte dos dados
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M5 11 11 5M6 5h5v5" /></svg
-          ></a>
-          <a
-            class="nav-link"
-            href="https://github.com/gcarbinatto"
-            target="_blank"
-            rel="noopener"
-            >GitHub
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M5 11 11 5M6 5h5v5" /></svg
-          ></a>
-          <a
-            class="nav-link"
-            href="https://www.linkedin.com/in/gabriel-carbinatto"
-            target="_blank"
-            rel="noopener"
-            >LinkedIn
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M5 11 11 5M6 5h5v5" /></svg
-          ></a>
-        </div>
-      </nav>
       <div class="hero-inner">
         <div class="hero-copy">
           <h1 id="hero-title">
-            <span class="hero-line line-one">Exploração visual</span
+            <span class="hero-line line-one">Visual Exploration</span
             ><span class="hero-line line-two"
-              >de <em class="accent">Body Pose</em
-              ><span class="period">.</span></span
+              >of Body <em class="accent">Pose</em> Data</span
             >
           </h1>
           <div class="hero-description">
             <p>
-              Replays tridimensionais de finalizações, construídos com dados
-              observados de Body Pose, rastreamento de transmissão e Game
-              Intelligence.
+              Explore 60 shots from two SkillCorner Open Data matches
+              reconstructed in 3D. The viewer synchronizes Body Pose,
+              broadcast tracking, and Game Intelligence data to show player
+              movement, ball trajectory, the shooter's field of view, and each
+              action frame by frame.
             </p>
-            <p class="source-note">
-              Dados fornecidos pela<br />
+            <div class="hero-profile" aria-label="Profile and data links">
+              <span class="profile-name">Gabriel Carbinatto</span>
               <a
-                class="source-link"
+                class="profile-link"
+                href="https://github.com/gcarbs1"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Gabriel Carbinatto on GitHub"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7A11.5 11.5 0 0 0 8.36 23.1c.58.1.79-.25.79-.56v-2.02c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.95.1-.75.4-1.25.73-1.54-2.57-.3-5.27-1.29-5.27-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.16 1.18a10.93 10.93 0 0 1 5.75 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.71 5.39-5.29 5.68.42.36.79 1.07.79 2.16v3.04c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z" /></svg>
+                GitHub
+              </a>
+              <a
+                class="profile-link profile-link--primary"
+                href="https://www.linkedin.com/in/gabriel-carbinatto/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Gabriel Carbinatto on LinkedIn"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.41a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12Zm1.78 13.04H3.54V8.98H7.1v11.47Z" /></svg>
+                LinkedIn
+              </a>
+              <a
+                class="profile-link"
                 href="https://github.com/SkillCorner/opendata"
                 target="_blank"
-                rel="noopener"
-                >SkillCorner Open Data
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M5 11 11 5M6 5h5v5" /></svg
-              ></a>
-            </p>
+                rel="noopener noreferrer"
+                aria-label="SkillCorner Open Data"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" class="external-icon"><path d="M5 11 11 5M6 5h5v5" /></svg>
+                SkillCorner Data
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <main class="app" id="replay">
-      <!-- 2. Cabeçalho do visualizador -->
+      <!-- 2. Viewer header. -->
       <header class="topbar">
         <div class="replay-id">
-          <span class="replay-index">01</span>
           <div class="replay-copy">
-            <span>Visualização interativa</span>
+            <span>Interactive visualization</span>
             <strong
-              >Finalizações das duas partidas disponíveis no SkillCorner Open
+              >Shots from the two matches available in SkillCorner Open
               Data</strong
             >
           </div>
@@ -112,51 +93,50 @@
       </header>
 
       <div class="workspace">
-        <!-- 3. Biblioteca de lances; abas e lista são preenchidas pelo JavaScript -->
+        <!-- 3. Clip library; JavaScript populates the tabs and list. -->
         <aside class="library">
           <div class="library-head">
             <div class="match-tabs" id="matchTabs"></div>
           </div>
           <div class="library-count">
-            <span id="clipCount">— chutes</span><span>25 FPS</span>
+            <span id="clipCount">— shots</span><span>25 FPS</span>
           </div>
           <div class="events" id="events">
-            <div class="empty">Carregando chutes…</div>
+            <div class="empty">Loading shots…</div>
           </div>
         </aside>
 
-        <!-- 4. Cena 3D do lance, visão do finalizador e controles de reprodução -->
+        <!-- 4. 3D clip scene, shooter view, and playback controls. -->
         <section class="viewer" id="viewer">
           <canvas id="scene"></canvas>
-          <div class="loading" id="loading">Carregando Body Pose</div>
+          <div class="loading" id="loading">Loading Body Pose</div>
           <div class="viewer-head">
             <div class="event-title">
               <span class="meta" id="eventMeta">—</span>
-              <h2 id="eventName">Selecione um chute</h2>
+              <h2 id="eventName">Select a shot</h2>
               <p id="fixture">—</p>
             </div>
           </div>
 
-          <!-- Visão em primeira pessoa: câmera posicionada na cabeça do finalizador -->
+          <!-- First-person view with the camera positioned at the shooter's head. -->
           <aside class="pov" id="pov">
             <canvas id="povScene"></canvas>
-            <span class="pov-fov">Campo de visão 84°</span>
+            <span class="pov-fov">84° field of view</span>
             <div class="pov-empty" id="povEmpty">
-              Orientação da cabeça indisponível neste quadro
+              Head orientation unavailable for this frame
             </div>
           </aside>
 
           <div class="team-key" id="teamKey"></div>
 
           <div class="controls">
-            <button class="play" id="play" aria-label="Reproduzir">
+            <button class="play" id="play" aria-label="Play">
               <svg viewBox="0 0 24 24">
                 <path id="playIcon" d="M8 5.5v13l11-6.5z" />
               </svg>
             </button>
             <div class="timeline">
               <input id="timeline" type="range" min="0" max="0" value="0" />
-              <span class="shot-marker" id="shotMarker"></span>
             </div>
             <div class="control-meta">
               <strong id="clock">00:00.0</strong>
@@ -168,7 +148,7 @@
       </div>
     </main>
 
-    <!-- 5. Dependências locais: Three.js e seus complementos são resolvidos pelo mapa de importação -->
+    <!-- 5. Local dependencies: the import map resolves Three.js and its add-ons. -->
     <script type="importmap">
       {
         "imports": {
@@ -177,6 +157,6 @@
         }
       }
     </script>
-    <script type="module" src="html/app.js"></script>
+    <script type="module" src="html/app.js?v=20261111-4"></script>
   </body>
 </html>

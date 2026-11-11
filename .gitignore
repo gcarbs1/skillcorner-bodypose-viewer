@@ -2,7 +2,7 @@
 .DS_Store
 **/.DS_Store
 
-# Editores e IDEs
+# Editors and IDEs
 .vscode/
 .idea/
 *.swp
@@ -18,11 +18,11 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
-# Arquivos de origem baixados pelo notebook de coleta
+# Source files downloaded by the collection notebook
 data/raw/*
 !data/raw/.gitkeep
 
-# Arquivos locais de ambiente
+# Local environment files
 .env
 .env.*
 !.env.example

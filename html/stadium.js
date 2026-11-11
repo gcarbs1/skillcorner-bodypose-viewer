@@ -1,10 +1,10 @@
 /**
- * Estádio estático do visualizador.
+ * Static stadium for the viewer.
  *
- * Todas as camadas (arquibancadas, esplanada, teto, iluminação e placas) partem do
- * mesmo contorno de retângulo arredondado, o que evita sobreposições e emendas.
- * As partes repetidas usam instâncias para manter poucas chamadas de desenho.
- * A direção visual está descrita em docs/direcao-visual.md.
+ * All layers (stands, concourse, roof, lighting, and boards) follow the same
+ * rounded-rectangle outline, preventing overlaps and seams. Repeated elements
+ * use instancing to keep draw calls low. Visual direction is documented in
+ * docs/visual-direction.md.
  */
 import * as THREE from "three";
 
@@ -45,7 +45,7 @@ const ARENA = {
 const UP = new THREE.Vector3(0, 1, 0);
 const FORWARD = new THREE.Vector3(0, 0, 1);
 
-/** Material padrão fosco com a cor indicada. */
+/** Default matte material using the specified color. */
 function standard(color, options = {}) {
   return new THREE.MeshStandardMaterial({
     color,
@@ -56,7 +56,7 @@ function standard(color, options = {}) {
   });
 }
 
-/** Pontos do contorno de um retângulo com cantos arredondados. */
+/** Outline points for a rectangle with rounded corners. */
 function roundedRectanglePoints(width, depth, radius, cornerSegments = 14) {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
@@ -90,14 +90,14 @@ function roundedRectanglePoints(width, depth, radius, cornerSegments = 14) {
   return points;
 }
 
-/** Garante o sentido horário ou anti-horário dos pontos. */
+/** Ensures clockwise or counterclockwise point order. */
 function orientPoints(points, clockwise) {
   const oriented = [...points];
   if (THREE.ShapeUtils.isClockWise(oriented) !== clockwise) oriented.reverse();
   return oriented;
 }
 
-/** Anel extrudado entre dois contornos arredondados. */
+/** Extruded ring between two rounded outlines. */
 function roundedRingGeometry(outer, inner, height) {
   const outerPoints = orientPoints(
     roundedRectanglePoints(outer.width, outer.depth, outer.radius),
@@ -125,7 +125,7 @@ function roundedRingGeometry(outer, inner, height) {
   return geometry;
 }
 
-/** Adiciona um anel (parede, muro ou piso) ao grupo. */
+/** Adds a ring, wall, barrier, or floor to the group. */
 function addRing(group, outer, inner, height, y, materials, options = {}) {
   const mesh = new THREE.Mesh(
     roundedRingGeometry(outer, inner, height),
@@ -136,7 +136,7 @@ function addRing(group, outer, inner, height, y, materials, options = {}) {
   return mesh;
 }
 
-/** Geometria do teto inclinado, com abertura central. */
+/** Sloped roof geometry with a central opening. */
 function slopedRoofGeometry(outer, inner, innerY, outerY, thickness) {
   const outerLoop = roundedRectanglePoints(
     outer.width,
@@ -213,7 +213,7 @@ function slopedRoofGeometry(outer, inner, innerY, outerY, thickness) {
   return geometry;
 }
 
-/** Adiciona o teto contínuo do estádio. */
+/** Adds the stadium's continuous roof. */
 function addSlopedRoof(group, materials) {
   const outer = {
     width: ARENA.roof.outerWidth,
@@ -238,7 +238,7 @@ function addSlopedRoof(group, materials) {
   group.add(roof);
 }
 
-/** Amostra pontos igualmente espaçados ao longo de um contorno fechado. */
+/** Samples evenly spaced points along a closed outline. */
 function sampleClosedPolyline(points, spacing) {
   const lengths = [];
   let perimeter = 0;
@@ -274,7 +274,7 @@ function sampleClosedPolyline(points, spacing) {
   return samples;
 }
 
-/** Direção da normal do contorno em um ponto. */
+/** Outline normal direction at a point. */
 function roundedRectangleNormal(point, width, depth, radius) {
   const coreX = Math.max(0, width / 2 - radius);
   const coreZ = Math.max(0, depth / 2 - radius);
@@ -289,7 +289,7 @@ function roundedRectangleNormal(point, width, depth, radius) {
   return normal.normalize();
 }
 
-/** Profundidade (z) do contorno para um dado x. */
+/** Outline depth (z) for a given x. */
 function boundaryZAtX(width, depth, radius, x) {
   const coreX = width / 2 - radius;
   const coreZ = depth / 2 - radius;
@@ -297,7 +297,7 @@ function boundaryZAtX(width, depth, radius, x) {
   return coreZ + Math.sqrt(Math.max(0, radius ** 2 - cornerX ** 2));
 }
 
-/** Largura (x) do contorno para um dado z. */
+/** Outline width (x) for a given z. */
 function boundaryXAtZ(width, depth, radius, z) {
   const coreX = width / 2 - radius;
   const coreZ = depth / 2 - radius;
@@ -305,14 +305,14 @@ function boundaryXAtZ(width, depth, radius, z) {
   return coreX + Math.sqrt(Math.max(0, radius ** 2 - cornerZ ** 2));
 }
 
-/** Classifica a normal em um dos quatro lados do estádio. */
+/** Classifies the normal as one of the stadium's four sides. */
 function classifySide(normal) {
   if (Math.abs(normal.y) >= Math.abs(normal.x))
     return normal.y < 0 ? "north" : "south";
   return normal.x < 0 ? "west" : "east";
 }
 
-/** Indica se o ponto cai no corredor que separa as seções. */
+/** Indicates whether a point falls within an aisle between sections. */
 function insideAisle(point, normal) {
   if (Math.abs(Math.abs(normal.x) - Math.abs(normal.y)) < 0.16) return true;
   const longSide = Math.abs(normal.y) >= Math.abs(normal.x);
@@ -321,12 +321,12 @@ function insideAisle(point, normal) {
   return aisleCenters.some((center) => Math.abs(coordinate - center) < 0.82);
 }
 
-/** Cor dos assentos: todos azuis, em todos os lados. */
+/** Seat color: blue on every side. */
 function sideColor() {
   return COLORS.blue;
 }
 
-/** Adiciona um anel de arquibancada, fileira por fileira. */
+/** Adds a stand tier one row at a time. */
 function addBowlTier(group, materials, seatRecords, config) {
   for (let row = 0; row < config.rows; row += 1) {
     const innerOffset = config.offset + row * config.tread;
@@ -380,7 +380,7 @@ function addBowlTier(group, materials, seatRecords, config) {
   }
 }
 
-/** Cria os assentos como instâncias de uma única geometria. */
+/** Creates seats as instances of a single geometry. */
 function addSeats(group, materials, records) {
   const cushionGeometry = new THREE.BoxGeometry(0.82, 0.16, 0.62);
   const backGeometry = new THREE.BoxGeometry(0.82, 0.64, 0.14);
@@ -428,7 +428,7 @@ function addSeats(group, materials, records) {
   }
 }
 
-/** Adiciona o guarda-corpo da esplanada. */
+/** Adds the concourse guardrail. */
 function addConcourseRail(group, materials, dimensions, y) {
   const points2D = roundedRectanglePoints(
     dimensions.width,
@@ -462,7 +462,7 @@ function addConcourseRail(group, materials, dimensions, y) {
   group.add(instanced);
 }
 
-/** Cria uma malha instanciada estática a partir de matrizes. */
+/** Creates a static instanced mesh from matrices. */
 function addStaticInstances(group, geometry, material, matrices, options = {}) {
   const mesh = new THREE.InstancedMesh(geometry, material, matrices.length);
   matrices.forEach((matrix, index) => mesh.setMatrixAt(index, matrix));
@@ -473,7 +473,7 @@ function addStaticInstances(group, geometry, material, matrices, options = {}) {
   return mesh;
 }
 
-/** Adiciona os portais emoldurados da esplanada. */
+/** Adds framed concourse portals. */
 function addPortals(group, materials, concourseOuter, floorY) {
   const portals = [];
   const longZ = concourseOuter.depth / 2 - 0.42;
@@ -532,7 +532,7 @@ function addPortals(group, materials, concourseOuter, floorY) {
   );
 }
 
-/** Adiciona as colunas externas que sustentam o teto. */
+/** Adds external roof-support columns. */
 function addColumns(group, materials) {
   const columnPath = roundedRectanglePoints(226, 188, 65, 24);
   const positions = sampleClosedPolyline(columnPath, 18);
@@ -553,7 +553,7 @@ function addColumns(group, materials) {
   group.add(columns);
 }
 
-/** Adiciona as nervuras do teto. */
+/** Adds the roof ribs. */
 function addRoofRibs(group, materials) {
   const beams = [];
   for (const side of [-1, 1]) {
@@ -625,7 +625,7 @@ function addRoofRibs(group, materials) {
   group.add(ribs);
 }
 
-/** Adiciona os módulos de refletores sob a borda interna do teto. */
+/** Adds floodlight modules beneath the inner roof edge. */
 function addIntegratedLighting(group, materials) {
   const horizontalMatrices = [];
   const verticalMatrices = [];
@@ -711,7 +711,7 @@ function addIntegratedLighting(group, materials) {
   );
 }
 
-/** Adiciona as placas de publicidade ao redor do campo, com aberturas nos gols. */
+/** Adds advertising boards around the pitch with openings behind the goals. */
 function addAdvertising(group, materials) {
   const longPositions = [];
   for (const side of [-1, 1]) {
@@ -752,7 +752,7 @@ function addAdvertising(group, materials) {
   group.add(endBoards);
 }
 
-/** Monta o estádio completo e o adiciona à cena. */
+/** Builds the complete stadium and adds it to the scene. */
 export function buildStadium(scene) {
   const group = new THREE.Group();
   group.name = "arena";
